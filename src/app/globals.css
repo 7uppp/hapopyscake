@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+:root {
+  --color-cream: #fff8fb;
+  --color-blush: #ffd7ea;
+  --color-peach: #ffbf8d;
+  --color-butter: #ffd94f;
+  --color-mint: #cbf5ea;
+  --color-berry: #ff5f95;
+  --color-ink: #513347;
+  --color-cocoa: #9a6b56;
+  --color-card: rgba(255, 255, 255, 0.9);
+  --shadow-soft: 0 24px 70px rgba(255, 95, 149, 0.16);
+}
+
+@theme inline {
+  --font-sans: "Avenir Next", "Nunito Sans", "Segoe UI", sans-serif;
+  --font-display: "Trebuchet MS", "Avenir Next Rounded", "Arial Rounded MT Bold", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: linear-gradient(180deg, #fff8fb 0%, #fffdf5 55%, #fff8fb 100%);
+}
+
+body {
+  color: var(--color-ink);
+  font-family: "Avenir Next", "Nunito Sans", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(255, 192, 220, 0.34), transparent 28%),
+    radial-gradient(circle at top right, rgba(255, 225, 113, 0.3), transparent 24%),
+    linear-gradient(180deg, #fff8fb 0%, #fffdf5 55%, #fff8fb 100%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(255, 200, 156, 0.8);
+}
+
+.container-shell {
+  width: min(1120px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.glass-card {
+  background: var(--color-card);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
+}
+
+.sprinkle-grid {
+  background-image:
+    radial-gradient(circle at 12% 20%, rgba(255, 215, 234, 0.95) 0 7px, transparent 7px),
+    radial-gradient(circle at 80% 14%, rgba(255, 217, 79, 0.8) 0 8px, transparent 8px),
+    radial-gradient(circle at 74% 74%, rgba(203, 245, 234, 0.9) 0 11px, transparent 11px),
+    radial-gradient(circle at 18% 84%, rgba(255, 191, 141, 0.7) 0 9px, transparent 9px);
+}
+
+.section-title {
+  font-family: "Trebuchet MS", "Avenir Next Rounded", "Arial Rounded MT Bold", sans-serif;
+  letter-spacing: -0.03em;
+}

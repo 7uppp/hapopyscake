@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  DRAFT
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
+  FULFILLED
+}
+
+enum CampaignStatus {
+  DRAFT
+  SENT
+  PARTIAL
+  FAILED
+}
+
+model User {
+  id            String                @id @default(cuid())
+  name          String?
+  email         String                @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  role          UserRole              @default(USER)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  consents      MarketingConsent[]
+  campaigns     Campaign[]
+  recipientLogs CampaignRecipientLog[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model MarketingConsent {
+  id             String    @id @default(cuid())
+  userId         String?
+  email          String
+  subscribed     Boolean   @default(false)
+  source         String
+  consentedAt    DateTime?
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+}
+
+model Order {
+  id                    String       @id @default(cuid())
+  userId                String?
+  customerName          String
+  email                 String
+  phone                 String
+  pickupDate            DateTime?
+  notes                 String?
+  marketingOptIn        Boolean      @default(false)
+  productType           String
+  configJson            Json
+  amountCents           Int
+  currency              String       @default("AUD")
+  status                OrderStatus  @default(DRAFT)
+  stripeSessionId       String?      @unique
+  stripePaymentIntentId String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  user                  User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  images                OrderImage[]
+
+  @@index([email])
+  @@index([userId])
+}
+
+model OrderImage {
+  id           String   @id @default(cuid())
+  orderId      String
+  bucket       String
+  path         String
+  mimeType     String
+  originalName String
+  createdAt    DateTime @default(now())
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model ContactInquiry {
+  id             String   @id @default(cuid())
+  name           String
+  email          String
+  phone          String?
+  message        String
+  attachmentName String?
+  createdAt      DateTime @default(now())
+}
+
+model Campaign {
+  id             String                @id @default(cuid())
+  subject        String
+  html           String
+  recipientCount Int                   @default(0)
+  status         CampaignStatus        @default(DRAFT)
+  sentAt         DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  createdById    String
+  createdBy      User                  @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  logs           CampaignRecipientLog[]
+}
+
+model CampaignRecipientLog {
+  id                String   @id @default(cuid())
+  campaignId        String
+  userId            String?
+  email             String
+  status            String
+  providerMessageId String?
+  error             String?
+  sentAt            DateTime?
+  createdAt         DateTime @default(now())
+  campaign          Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+}
+
+model GalleryItem {
+  id          String   @id @default(cuid())
+  title       String
+  alt         String
+  caption     String?
+  category    String
+  storagePath String
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String
+  label     String
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
