@@ -1,77 +1,109 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Menu, PawPrint, ShoppingCart } from "lucide-react";
 
 import { auth } from "@/auth";
 import { SignOutButton } from "@/components/ui/sign-out-button";
-import { siteConfig } from "@/lib/site";
 
 export async function Header() {
   const session = await auth();
+  const navItems = [
+    { href: "/", label: "Home", active: true },
+    { href: "/order", label: "Shop cakes" },
+    { href: "/gallery", label: "Gallery" },
+    { href: "/faq", label: "FAQ" },
+    { href: "/contact", label: "Contact" },
+  ];
 
   return (
-    <header className="sticky top-0 z-40">
-      <div className="bg-[var(--color-butter)] px-4 py-2 text-center text-xs font-extrabold uppercase tracking-[0.22em] text-[var(--color-ink)]">
-        Brisbane pickup · custom pet birthday cakes · order ahead for weekends
-      </div>
-      <div className="border-b border-white/70 bg-white/82 backdrop-blur-xl">
-        <div className="container-shell flex items-center justify-between gap-8 py-2">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="relative flex h-44 w-44 items-center justify-center overflow-hidden bg-transparent md:h-52 md:w-52">
-              <Image
-                src="/logo.png"
-                alt={`${siteConfig.name} logo`}
-                fill
-                sizes="208px"
-                className="object-contain"
-                priority
-              />
-            </span>
-            <div className="hidden lg:block">
-              <div className="font-display text-[1.55rem] text-[var(--color-berry)]">
-                {siteConfig.name}
-              </div>
-              <div className="text-[11px] uppercase tracking-[0.28em] text-[var(--color-cocoa)]">
-                Custom pet treats
-              </div>
-            </div>
-          </Link>
+    <header className="relative z-40 bg-[#fffaf1]">
+      <div className="container-shell grid grid-cols-[330px_1fr_112px] items-start gap-8 pt-2 pb-1 max-xl:grid-cols-[290px_1fr_104px] max-lg:flex max-lg:min-h-[132px] max-lg:items-center max-lg:justify-between max-lg:gap-4 max-lg:py-3">
+        <Link href="/" className="relative -ml-8 -mb-10 block h-[188px] w-[395px] shrink-0 max-xl:-ml-3 max-xl:h-[150px] max-xl:w-[315px] max-lg:ml-0 max-lg:mb-0 max-lg:h-[112px] max-lg:w-[238px] max-md:h-[92px] max-md:w-[196px]">
+          <Image
+            src="/logov1-cropped.png"
+            alt="Happy's Cake logo"
+            fill
+            sizes="(max-width: 768px) 196px, (max-width: 1024px) 238px, (max-width: 1280px) 315px, 395px"
+            className="object-contain"
+            preload
+          />
+        </Link>
 
-          <nav className="hidden items-center gap-5 text-sm font-extrabold uppercase tracking-[0.08em] text-[var(--color-cocoa)] md:flex">
-            {siteConfig.nav.map((item) => (
-              <Link key={item.href} href={item.href} className="transition hover:text-[var(--color-berry)]">
-                {item.label}
+        <nav className="hidden w-full items-center justify-between gap-6 pt-[72px] max-xl:gap-4 max-xl:pt-[54px] lg:flex">
+          {navItems.map((item) => (
+            <Link
+              key={`${item.href}-${item.label}`}
+              href={item.href}
+              className={`nav-candy-button flex h-[62px] min-w-[128px] items-center justify-center whitespace-nowrap px-8 text-center font-display text-[13px] font-black uppercase leading-none tracking-[0.02em] transition hover:-translate-y-0.5 max-xl:h-14 max-xl:min-w-[112px] max-xl:px-5 max-xl:text-[12px] ${
+                item.active
+                  ? "nav-candy-button-active text-[var(--color-berry)]"
+                  : "nav-candy-button-soft text-[var(--color-berry)]"
+              }`}
+            >
+              <span className="nav-candy-paw" aria-hidden="true">
+                <PawPrint size={15} fill="currentColor" strokeWidth={2.4} />
+              </span>
+              <span className="relative z-10">{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        <div className="hidden items-center justify-end gap-3 pt-[72px] max-xl:pt-[54px] lg:flex">
+          {session?.user ? (
+            <>
+              <Link
+                href={session.user.role === "ADMIN" ? "/admin/marketing" : "/account"}
+                className="nav-candy-button nav-candy-button-soft flex h-[62px] min-w-[128px] items-center justify-center px-6 font-display text-[12px] font-black uppercase leading-none tracking-[0.02em] text-[var(--color-berry)] max-xl:h-14 max-xl:min-w-[112px]"
+              >
+                <span className="relative z-10">{session.user.role === "ADMIN" ? "Dashboard" : "Account"}</span>
               </Link>
-            ))}
-          </nav>
+              <SignOutButton />
+            </>
+          ) : (
+            <Link
+              href="/order"
+              className="nav-cart-button flex h-[62px] min-w-[126px] items-center justify-center gap-3 rounded-full px-7 font-display text-[13px] font-black uppercase leading-none tracking-[0.02em] text-[var(--color-berry)] transition hover:-translate-y-0.5 max-xl:h-14 max-xl:min-w-[112px]"
+            >
+              <ShoppingCart size={21} />
+              <span className="relative z-10">0</span>
+            </Link>
+          )}
+        </div>
 
-          <div className="flex items-center gap-3">
-            {session?.user ? (
-              <>
-                <Link
-                  href={session.user.role === "ADMIN" ? "/admin/marketing" : "/account"}
-                  className="rounded-full border-2 border-[var(--color-blush)] bg-white px-4 py-2 text-sm font-extrabold uppercase tracking-[0.08em] text-[var(--color-berry)] transition hover:-translate-y-0.5"
-                >
-                  {session.user.role === "ADMIN" ? "Dashboard" : "Account"}
-                </Link>
-                <SignOutButton />
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="rounded-full border-2 border-[var(--color-blush)] px-4 py-2 text-sm font-extrabold uppercase tracking-[0.08em] text-[var(--color-berry)] transition hover:bg-white"
-                >
-                  Login
-                </Link>
+        <div className="relative z-50 flex items-center gap-3 lg:hidden">
+          <details className="group relative">
+            <summary className="flex h-12 w-12 cursor-pointer list-none items-center justify-center rounded-full bg-[var(--color-berry)] text-white shadow-[0_10px_18px_rgba(255,92,152,0.28)] marker:hidden">
+              <Menu size={22} />
+            </summary>
+            <div className="absolute right-0 top-[calc(100%+14px)] w-56 rounded-[28px] border-2 border-white bg-[#fffaf1] p-4 shadow-[0_18px_34px_rgba(123,68,40,0.18)]">
+              <div className="flex flex-col gap-3">
                 <Link
                   href="/order"
-                  className="rounded-full bg-[var(--color-berry)] px-5 py-2 text-sm font-extrabold uppercase tracking-[0.08em] text-white shadow-lg shadow-pink-300/50 transition hover:-translate-y-0.5"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[var(--color-berry)] px-5 py-3 text-center font-display text-sm font-black uppercase text-white"
                 >
-                  Order now
+                  <ShoppingCart size={17} />
+                  Cart 0
                 </Link>
-              </>
-            )}
-          </div>
+                {navItems.map((item) => (
+                  <Link
+                    key={`mobile-${item.href}-${item.label}`}
+                    href={item.href}
+                    className="rounded-full bg-white px-5 py-3 text-center font-display text-sm font-black uppercase text-[#6c3a27]"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                {session?.user ? (
+                  <Link
+                    href={session.user.role === "ADMIN" ? "/admin/marketing" : "/account"}
+                    className="rounded-full bg-white px-5 py-3 text-center font-display text-sm font-black uppercase text-[#6c3a27]"
+                  >
+                    {session.user.role === "ADMIN" ? "Dashboard" : "Account"}
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+          </details>
         </div>
       </div>
     </header>
