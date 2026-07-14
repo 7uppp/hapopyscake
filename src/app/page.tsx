@@ -15,24 +15,45 @@ import {
 
 import { auth } from "@/auth";
 import { MarketingPopup } from "@/components/forms/marketing-popup";
+import { GalleryCarousel } from "@/components/home/gallery-carousel";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { getGalleryItems } from "@/lib/data";
 
 const heroSlides = [
   {
     id: "happy-cake-main",
-    imageUrl: "/home-banner-clean-1.png",
+    imageUrl: "/Banner/home-banner-clean-1.png",
     imageAlt: "Happy's Cake custom pet birthday cake banner",
   },
   {
-    id: "happy-cake-pink",
-    imageUrl: "/home-banner-clean-2.png",
-    imageAlt: "Happy's Cake pink custom pet cake carousel banner",
+    id: "happy-cake-banner-1",
+    imageUrl: "/Banner/1.jpg",
+    imageAlt: "Happy's Cake pet cake banner 1",
   },
   {
-    id: "happy-cake-mint",
-    imageUrl: "/home-banner-clean-3.png",
-    imageAlt: "Happy's Cake mint custom pet cake carousel banner",
+    id: "happy-cake-banner-2",
+    imageUrl: "/Banner/2.jpg",
+    imageAlt: "Happy's Cake pet cake banner 2",
+  },
+  {
+    id: "happy-cake-banner-3",
+    imageUrl: "/Banner/3.jpg",
+    imageAlt: "Happy's Cake pet cake banner 3",
+  },
+  {
+    id: "happy-cake-banner-4",
+    imageUrl: "/Banner/4.jpg",
+    imageAlt: "Happy's Cake pet cake banner 4",
+  },
+  {
+    id: "happy-cake-banner-5",
+    imageUrl: "/Banner/5.jpg",
+    imageAlt: "Happy's Cake pet cake banner 5",
+  },
+  {
+    id: "happy-cake-banner-6",
+    imageUrl: "/Banner/6.jpg",
+    imageAlt: "Happy's Cake pet cake banner 6",
   },
 ] as const;
 
@@ -134,7 +155,7 @@ const trustItems = [
 export default async function HomePage() {
   const session = await auth();
   const galleryItems = await getGalleryItems();
-  const galleryPreview = [...galleryItems, ...galleryItems].slice(0, 5);
+  const galleryPreview = galleryItems;
 
   return (
     <div className="bg-[#fffaf1] pb-10">
@@ -245,27 +266,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-            {galleryPreview.map((item, index) => (
-              <article
-                key={`${item.id}-${index}`}
-                className="relative overflow-hidden rounded-[22px] border-4 border-white bg-white shadow-[0_8px_18px_rgba(123,68,40,0.1)]"
-              >
-                <div className="relative aspect-[1.08]">
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.alt}
-                    fill
-                    sizes="(min-width: 1024px) 220px, (min-width: 768px) 33vw, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="absolute bottom-3 left-3 rounded-[18px] bg-white/94 px-4 py-3 text-xs font-medium leading-4 text-[var(--color-cocoa)] shadow-[0_6px_14px_rgba(123,68,40,0.1)]">
-                  {galleryCaptions[index] ?? "Party-ready treats!"}
-                </div>
-              </article>
-            ))}
-          </div>
+          <GalleryCarousel items={galleryPreview} captions={galleryCaptions} />
         </div>
       </section>
 
@@ -281,7 +282,7 @@ export default async function HomePage() {
             <div className="flex items-center gap-5">
               <div className="relative h-28 w-28 shrink-0">
                 <Image
-                  src="/logov1-cropped.png"
+                  src="/logo.png"
                   alt="Happy's Cake logo"
                   fill
                   sizes="112px"

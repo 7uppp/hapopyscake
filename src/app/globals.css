@@ -6,16 +6,16 @@
   --color-peach: #ffc28e;
   --color-butter: #ffe16a;
   --color-mint: #c9f1df;
-  --color-berry: #ff5c98;
+  --color-berry: #ec7fa9;
   --color-ink: #4f2f23;
   --color-cocoa: #7b4428;
   --color-card: rgba(255, 255, 255, 0.9);
-  --shadow-soft: 0 24px 70px rgba(255, 95, 149, 0.16);
+  --shadow-soft: 0 24px 70px rgba(236, 127, 169, 0.16);
 }
 
 @theme inline {
-  --font-sans: "Avenir Next", "Nunito Sans", "Segoe UI", sans-serif;
-  --font-display: "Trebuchet MS", "Avenir Next Rounded", "Arial Rounded MT Bold", sans-serif;
+  --font-sans: "Segoe UI Rounded", "Comic Sans MS", "Nunito Sans", "Segoe UI", sans-serif;
+  --font-display: "Arial Rounded MT Bold", "Segoe UI Rounded", "Comic Sans MS", "Trebuchet MS", sans-serif;
 }
 
 * {
@@ -28,7 +28,7 @@ html {
 
 body {
   color: var(--color-ink);
-  font-family: "Avenir Next", "Nunito Sans", "Segoe UI", sans-serif;
+  font-family: "Segoe UI Rounded", "Comic Sans MS", "Nunito Sans", "Segoe UI", sans-serif;
   background: #fffaf1;
 }
 
@@ -68,56 +68,43 @@ textarea {
 }
 
 .section-title {
-  font-family: "Trebuchet MS", "Avenir Next Rounded", "Arial Rounded MT Bold", sans-serif;
+  font-family: "Arial Rounded MT Bold", "Segoe UI Rounded", "Comic Sans MS", "Trebuchet MS", sans-serif;
   letter-spacing: 0;
 }
 
 .nav-candy-button {
   position: relative;
   isolation: isolate;
-  border-radius: 26px;
-  box-shadow:
-    inset 0 3px 0 rgba(255, 255, 255, 0.88),
-    0 9px 0 rgba(255, 213, 231, 0.42),
-    0 17px 24px rgba(255, 92, 152, 0.13);
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-.nav-candy-paw {
+.nav-candy-button::before {
+  content: "";
   position: absolute;
-  top: -20px;
-  left: 50%;
-  display: flex;
-  width: 34px;
-  height: 34px;
-  transform: translateX(-50%);
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  border: 2px solid #ffd1e1;
-  background:
-    radial-gradient(circle at 30% 22%, #ffffff 0 28%, transparent 29%),
-    #fff8ef;
-  color: var(--color-berry);
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.85),
-    0 6px 12px rgba(255, 92, 152, 0.18);
+  inset: -9px -13px;
+  z-index: -1;
+  background-image: url("/button.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  filter: drop-shadow(0 10px 14px rgba(123, 68, 40, 0.13));
 }
 
 .nav-candy-button-soft {
-  border: 2px solid #ffd7c6;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #fff9f3 62%, #ffece1 100%);
+  color: var(--color-cocoa);
 }
 
 .nav-candy-button-active {
-  border: 2px solid #ff84b8;
-  background:
-    linear-gradient(180deg, #ff78b1 0%, #ff5c98 70%, #ef4d8c 100%);
-  color: #ffffff;
-  box-shadow:
-    inset 0 3px 0 rgba(255, 255, 255, 0.34),
-    0 9px 0 rgba(225, 65, 126, 0.24),
-    0 17px 26px rgba(255, 92, 152, 0.25);
+  color: var(--color-berry);
+}
+
+.nav-candy-button-active::before {
+  filter:
+    saturate(1.08)
+    drop-shadow(0 12px 18px rgba(236, 127, 169, 0.2));
 }
 
 .nav-cart-button {
@@ -126,8 +113,46 @@ textarea {
     linear-gradient(180deg, #fff09d 0%, #ffd75e 72%, #ffc946 100%);
   box-shadow:
     inset 0 3px 0 rgba(255, 255, 255, 0.48),
-    0 9px 0 rgba(235, 183, 57, 0.22),
-    0 17px 24px rgba(255, 201, 71, 0.23);
+    0 5px 0 rgba(235, 183, 57, 0.2),
+    0 11px 16px rgba(255, 201, 71, 0.2);
+}
+
+.gallery-carousel-mask {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+}
+
+.gallery-carousel-track {
+  display: flex;
+  width: max-content;
+  gap: 1rem;
+  animation: gallery-scroll 32s linear infinite;
+}
+
+.gallery-carousel-mask:hover .gallery-carousel-track {
+  animation-play-state: paused;
+}
+
+.gallery-carousel-card {
+  position: relative;
+  display: block;
+  width: clamp(210px, 23vw, 260px);
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 4px solid #ffffff;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(123, 68, 40, 0.1);
+}
+
+@keyframes gallery-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 0.5rem));
+  }
 }
 
 .menu-image-button {
