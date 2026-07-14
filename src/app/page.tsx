@@ -1,16 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Cake,
   Camera,
-  ChefHat,
-  Gift,
   Heart,
   PawPrint,
-  ShieldCheck,
   ShoppingCart,
   Smile,
-  Truck,
 } from "lucide-react";
 
 import { auth } from "@/auth";
@@ -59,34 +54,28 @@ const heroSlides = [
 
 const featureCards = [
   {
-    title: "Birthday cakes",
-    description: "Make their day extra special",
-    icon: PawPrint,
-    tone: "bg-[#fff3e2]",
+    title: "Custom designed",
+    description: "For your furbabies",
+    iconUrl: "/custom-color.png",
+    iconAlt: "Custom designed icon",
   },
   {
-    title: "Grain-free options",
-    description: "Gentle & healthy goodness",
-    icon: Heart,
-    tone: "bg-[#ffe0c5]",
+    title: "Meat & veggie base",
+    description: "100% meat & veggie recipes",
+    iconUrl: "/base-color.png",
+    iconAlt: "Meat and veggie base icon",
   },
   {
-    title: "Custom cakes",
-    description: "Designed just for your pet",
-    icon: ChefHat,
-    tone: "bg-white",
+    title: "Human-grade",
+    description: "Gluten-free, no preservatives, no artificial colors",
+    iconUrl: "/guard-color.png",
+    iconAlt: "Human-grade ingredients icon",
   },
   {
-    title: "Add-on treats",
-    description: "Cookies, cupcakes & more!",
-    icon: Gift,
-    tone: "bg-[#ffd6e5]",
-  },
-  {
-    title: "Fast & safe delivery",
-    description: "Right to your door",
-    icon: Truck,
-    tone: "bg-[#d8f2e9]",
+    title: "Order ahead",
+    description: "Order at least 7 days in advance",
+    iconUrl: "/time-color.png",
+    iconAlt: "Order ahead icon",
   },
 ] as const;
 
@@ -164,18 +153,21 @@ export default async function HomePage() {
       <HeroCarousel slides={heroSlides} />
 
       <section className="container-shell pt-8">
-        <div className="grid gap-4 lg:grid-cols-5">
-          {featureCards.map((item) => {
-            const Icon = item.icon;
-
-            return (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {featureCards.map((item) => (
               <article
                 key={item.title}
                 className="cute-card min-h-[112px] rounded-[24px] px-6 py-5"
               >
                 <div className="flex items-center gap-5">
-                  <div className={`flex size-[70px] shrink-0 items-center justify-center rounded-[22px] ${item.tone} text-[var(--color-cocoa)]`}>
-                    <Icon size={38} strokeWidth={1.8} />
+                  <div className="relative flex size-[104px] shrink-0 items-center justify-center">
+                    <Image
+                      src={item.iconUrl}
+                      alt={item.iconAlt}
+                      width={100}
+                      height={100}
+                      className="size-[100px] object-contain"
+                    />
                   </div>
                   <div>
                     <h2 className="font-black uppercase leading-tight text-[var(--color-cocoa)]">
@@ -187,8 +179,7 @@ export default async function HomePage() {
                   </div>
                 </div>
               </article>
-            );
-          })}
+          ))}
         </div>
       </section>
 
@@ -279,22 +270,24 @@ export default async function HomePage() {
           </div>
 
           <div className="relative z-10 grid gap-6 lg:grid-cols-[1.05fr_1.35fr_1fr] lg:items-center">
-            <div className="flex items-center gap-5">
-              <div className="relative h-28 w-28 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="relative h-28 w-32 shrink-0 overflow-visible md:h-32 md:w-36">
                 <Image
-                  src="/logo.png"
-                  alt="Happy's Cake logo"
+                  src="/mascot.png"
+                  alt="Happy's Cake baking puppy mascot"
                   fill
-                  sizes="112px"
+                  sizes="(max-width: 768px) 144px, 160px"
                   className="object-contain"
                 />
               </div>
-              <div>
-                <h2 className="section-title text-[2rem] font-black leading-tight text-[var(--color-cocoa)]">
-                  Let’s Bake Some Happiness!
+              <div className="min-w-[190px]">
+                <h2 className="section-title text-[1.35rem] font-black leading-[1.08] text-[var(--color-cocoa)] md:text-[1.52rem]">
+                  <span className="whitespace-nowrap">Let’s Bake Some</span>
+                  <br />
+                  Happiness!
                 </h2>
-                <p className="mt-2 text-base leading-6 text-[var(--color-cocoa)]">
-                  Join our pack &amp; get <span className="font-black text-[var(--color-berry)]">10% OFF</span> your first order!
+                <p className="mt-2 max-w-[260px] text-sm leading-5 text-[var(--color-cocoa)]">
+                  Join our pack for new treats, cute gallery updates, and birthday reminders.
                 </p>
               </div>
             </div>
