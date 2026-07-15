@@ -17,7 +17,7 @@ import { getGalleryItems } from "@/lib/data";
 const heroSlides = [
   {
     id: "happy-cake-main",
-    imageUrl: "/Banner/home-banner-clean-1.png",
+    imageUrl: "/Banner/home-banner.png",
     imageAlt: "Happy's Cake custom pet birthday cake banner",
   },
   {

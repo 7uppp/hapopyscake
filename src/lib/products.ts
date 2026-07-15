@@ -128,7 +128,17 @@ const commonCustomerSchema = z.object({
   customerName: z.string().min(2, "Please enter your name."),
   email: z.string().email("Please enter a valid email."),
   phone: z.string().min(6, "Please enter a contact phone."),
-  pickupDate: z.string().min(1, "Please choose a pickup date and time."),
+  pickupDate: z
+    .string()
+    .min(1, "Please choose a pickup date and time.")
+    .refine((value) => {
+      const selectedDate = new Date(value);
+      const minimumDate = new Date();
+      minimumDate.setDate(minimumDate.getDate() + 7);
+      minimumDate.setSeconds(0, 0);
+
+      return !Number.isNaN(selectedDate.getTime()) && selectedDate >= minimumDate;
+    }, "Please choose a pickup time at least 7 days from today."),
   notes: z.string().max(600).optional().default(""),
   marketingOptIn: z.boolean().default(false),
 });

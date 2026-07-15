@@ -53,6 +53,20 @@ const defaultSelectionByProduct: Record<ProductType, Record<string, unknown>> = 
   },
 };
 
+function formatDateTimeLocal(value: Date) {
+  const offsetMs = value.getTimezoneOffset() * 60 * 1000;
+
+  return new Date(value.getTime() - offsetMs).toISOString().slice(0, 16);
+}
+
+function getMinimumPickupDateTime() {
+  const minimumDate = new Date();
+  minimumDate.setDate(minimumDate.getDate() + 7);
+  minimumDate.setSeconds(0, 0);
+
+  return formatDateTimeLocal(minimumDate);
+}
+
 export function OrderForm({ session }: OrderFormProps) {
   const [productType, setProductType] = useState<ProductType>("head-cake");
   const [selection, setSelection] = useState<Record<string, unknown>>(
@@ -69,6 +83,7 @@ export function OrderForm({ session }: OrderFormProps) {
       return "—";
     }
   }, [selection]);
+  const minimumPickupDateTime = useMemo(() => getMinimumPickupDateTime(), []);
 
   function updateSelection(nextProductType: ProductType) {
     setProductType(nextProductType);
@@ -242,9 +257,13 @@ export function OrderForm({ session }: OrderFormProps) {
             <input
               name="pickupDate"
               type="datetime-local"
+              min={minimumPickupDateTime}
               required
               className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3"
             />
+            <p className="mt-2 text-xs leading-5 text-[var(--color-cocoa)]/75">
+              Please choose a pickup time at least 7 days from today.
+            </p>
           </div>
         </div>
 

@@ -18,6 +18,7 @@ type HeroCarouselProps = {
 export function HeroCarousel({ slides }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentSlide = slides[currentIndex] ?? slides[0];
+  const isMainBanner = currentSlide?.id === "happy-cake-main";
 
   useEffect(() => {
     if (slides.length <= 1) {
@@ -41,15 +42,16 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
 
   return (
     <section className="container-shell pt-14">
-      <div className="relative aspect-[984/480] overflow-hidden rounded-[44px] border-[5px] border-white bg-[#ffe680] shadow-[0_16px_30px_rgba(123,68,40,0.12)]">
+      <div className="relative aspect-[984/480] overflow-hidden rounded-[44px] bg-[#ffe680] shadow-[0_16px_30px_rgba(123,68,40,0.12)]">
         <Image
           key={currentSlide?.id}
-          src={currentSlide?.imageUrl ?? "/home-banner-clean-1.png"}
+          src={currentSlide?.imageUrl ?? "/Banner/home-banner.png"}
           alt={currentSlide?.imageAlt ?? "Happy's Cake birthday cake banner"}
           fill
           preload
+          unoptimized
           sizes="min(1240px, calc(100vw - 2rem))"
-          className="object-cover"
+          className={`object-cover ${isMainBanner ? "scale-[1.035]" : ""}`}
         />
 
         {slides.length > 1 ? (

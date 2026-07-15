@@ -1,13 +1,7 @@
 import Link from "next/link";
-import { Camera, Heart, Music4 } from "lucide-react";
 
+import { SocialQrModal } from "@/components/layout/social-qr-modal";
 import { siteConfig } from "@/lib/site";
-
-const iconMap = {
-  Instagram: Camera,
-  Facebook: Heart,
-  TikTok: Music4,
-} as const;
 
 export function Footer() {
   return (
@@ -40,26 +34,9 @@ export function Footer() {
 
         <div>
           <p className="mb-3 font-display text-lg text-[var(--color-ink)]">
-            Follow along
+            Follow us on
           </p>
-          <div className="flex gap-3">
-            {siteConfig.socials.map((social) => {
-              const Icon = iconMap[social.platform as keyof typeof iconMap] ?? Camera;
-
-              return (
-                <a
-                  key={social.platform}
-                  href={social.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={social.platform}
-                  className="flex size-11 items-center justify-center rounded-2xl bg-[var(--color-blush)] text-[var(--color-berry)] shadow-sm transition hover:-translate-y-0.5 hover:bg-[var(--color-butter)]"
-                >
-                  <Icon size={18} />
-                </a>
-              );
-            })}
-          </div>
+          <SocialQrModal />
         </div>
       </div>
     </footer>
