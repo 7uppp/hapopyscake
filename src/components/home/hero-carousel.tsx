@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type HeroSlide = {
   id: string;
@@ -32,14 +31,6 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
     return () => window.clearInterval(timer);
   }, [slides.length]);
 
-  function previousSlide() {
-    setCurrentIndex((current) => (current - 1 + slides.length) % slides.length);
-  }
-
-  function nextSlide() {
-    setCurrentIndex((current) => (current + 1) % slides.length);
-  }
-
   return (
     <section className="container-shell pt-14">
       <div className="relative aspect-[984/480] overflow-hidden rounded-[44px] bg-[#ffe680] shadow-[0_16px_30px_rgba(123,68,40,0.12)]">
@@ -53,27 +44,6 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
           sizes="min(1240px, calc(100vw - 2rem))"
           className={`object-cover ${isMainBanner ? "scale-[1.035]" : ""}`}
         />
-
-        {slides.length > 1 ? (
-          <>
-            <button
-              type="button"
-              onClick={previousSlide}
-              aria-label="Previous banner"
-              className="absolute left-[2.1%] top-1/2 z-20 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[var(--color-cocoa)] shadow-[0_8px_18px_rgba(123,68,40,0.18)] transition hover:scale-105"
-            >
-              <ChevronLeft size={25} />
-            </button>
-            <button
-              type="button"
-              onClick={nextSlide}
-              aria-label="Next banner"
-              className="absolute right-[2.1%] top-1/2 z-20 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[var(--color-cocoa)] shadow-[0_8px_18px_rgba(123,68,40,0.18)] transition hover:scale-105"
-            >
-              <ChevronRight size={25} />
-            </button>
-          </>
-        ) : null}
 
         <Link
           href="/order"

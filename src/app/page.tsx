@@ -1,10 +1,12 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+
 import Image from "next/image";
 import Link from "next/link";
 import {
   Camera,
   Heart,
   PawPrint,
-  ShoppingCart,
   Smile,
 } from "lucide-react";
 
@@ -12,7 +14,6 @@ import { auth } from "@/auth";
 import { MarketingPopup } from "@/components/forms/marketing-popup";
 import { GalleryCarousel } from "@/components/home/gallery-carousel";
 import { HeroCarousel } from "@/components/home/hero-carousel";
-import { getGalleryItems } from "@/lib/data";
 
 const heroSlides = [
   {
@@ -81,7 +82,6 @@ const featureCards = [
 
 const productCards: ReadonlyArray<{
   title: string;
-  flavor: string;
   price: string;
   badge?: string;
   bg: string;
@@ -89,51 +89,49 @@ const productCards: ReadonlyArray<{
   imageAlt: string;
 }> = [
   {
-    title: "Puppy Party Cake",
-    flavor: "Chicken, Carrot & Oat",
-    price: "$39.99",
-    badge: "Best seller",
+    title: "3D head cupcake",
+    price: "From $49",
     bg: "bg-[#d9f7e9]",
-    imageUrl:
-      "https://images.unsplash.com/photo-1519869325930-281384150729?auto=format&fit=crop&w=900&q=80",
-    imageAlt: "Puppy party cake product card",
+    imageUrl: "/3d-head-cupCake.jpg",
+    imageAlt: "3D head cupcake product card",
   },
   {
-    title: "Tail Waggin’ Cake",
-    flavor: "Peanut Butter & Banana",
-    price: "$36.99",
+    title: "3D head cake",
+    price: "From $84",
     bg: "bg-[#ffd3b6]",
-    imageUrl:
-      "https://images.unsplash.com/photo-1562440499-64c9a111f713?auto=format&fit=crop&w=900&q=80",
-    imageAlt: "Tail Waggin cake product card",
+    imageUrl: "/3d-head.jpg",
+    imageAlt: "3D head cake product card",
   },
   {
-    title: "Berry Good Cake",
-    flavor: "Blueberry & Yogurt",
-    price: "$38.99",
+    title: "3D full body cake",
+    price: "From $69",
+    badge: "Best seller",
     bg: "bg-[#ffe875]",
-    imageUrl:
-      "https://images.unsplash.com/photo-1542826438-bd32f43d626f?auto=format&fit=crop&w=900&q=80",
-    imageAlt: "Berry Good cake product card",
+    imageUrl: "/3d-full-body.jpg",
+    imageAlt: "3D full body cake product card",
   },
   {
-    title: "Gotcha Day Cake",
-    flavor: "Pumpkin & Cinnamon",
-    price: "$34.99",
+    title: "themed Cookie",
+    price: "From $49",
     bg: "bg-[#ffd1e4]",
-    imageUrl:
-      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80",
-    imageAlt: "Gotcha Day cake product card",
+    imageUrl: "/cookies.jpg",
+    imageAlt: "themed Cookie product card",
   },
 ] as const;
 
-const galleryCaptions = [
-  "So fresh & delicious! ♥",
-  "He loved every bite! 😍",
-  "Our go-to for every paw-ty! 🐾",
-  "The cutest cake ever! ♥",
-  "100% approved! 😍",
-] as const;
+async function getHappyPawsItems() {
+  const folderPath = path.join(process.cwd(), "public", "Happy paws");
+  const files = await fs.readdir(folderPath);
+
+  return files
+    .filter((file) => /\.(jpe?g|png|webp)$/i.test(file))
+    .sort((first, second) => first.localeCompare(second, undefined, { numeric: true }))
+    .map((file, index) => ({
+      id: `happy-paws-${index + 1}`,
+      imageUrl: `/Happy paws/${encodeURIComponent(file)}`,
+      alt: `Happy's Cake customer photo ${index + 1}`,
+    }));
+}
 
 const trustItems = [
   { label: "Made with love", icon: Heart },
@@ -143,11 +141,10 @@ const trustItems = [
 
 export default async function HomePage() {
   const session = await auth();
-  const galleryItems = await getGalleryItems();
-  const galleryPreview = galleryItems;
+  const galleryPreview = await getHappyPawsItems();
 
   return (
-    <div className="bg-[#fffaf1] pb-10">
+    <div className="bg-[var(--color-cream)] pb-10">
       <MarketingPopup enabled={!session?.user} />
 
       <HeroCarousel slides={heroSlides} />
@@ -194,9 +191,9 @@ export default async function HomePage() {
           </h2>
           <Link
             href="/order"
-            className="hidden h-14 items-center gap-2 rounded-full bg-[var(--color-berry)] px-8 text-sm font-black uppercase tracking-[0.04em] text-white shadow-[0_10px_20px_rgba(255,92,152,0.25)] md:flex"
+            className="nav-candy-button nav-candy-button-active hidden h-14 items-center gap-2 px-8 text-sm font-black uppercase tracking-[0.04em] md:flex"
           >
-            View all cakes <PawPrint size={17} />
+            View all <PawPrint size={17} />
           </Link>
         </div>
 
@@ -207,7 +204,7 @@ export default async function HomePage() {
               className="cute-card relative overflow-hidden rounded-[28px] p-3"
             >
               {item.badge ? (
-                <div className="absolute left-3 top-3 z-20 rounded-full bg-[var(--color-berry)] px-4 py-3 text-center text-xs font-black uppercase leading-tight text-white">
+                <div className="absolute left-3 top-3 z-20 rounded-50 bg-[var(--color-berry)] px-4 py-3 text-center text-xs font-black uppercase leading-tight text-white">
                   Best<br />seller
                 </div>
               ) : null}
@@ -226,17 +223,9 @@ export default async function HomePage() {
                 <h3 className="section-title text-2xl font-black text-[var(--color-cocoa)]">
                   {item.title}
                 </h3>
-                <p className="mt-1 text-sm text-[var(--color-cocoa)]">{item.flavor}</p>
                 <p className="mt-3 text-2xl font-black text-[var(--color-berry)]">
                   {item.price}
                 </p>
-                <Link
-                  href="/order"
-                  className="mt-3 inline-flex h-11 items-center gap-2 rounded-full bg-[var(--color-berry)] px-8 text-sm font-black uppercase text-white shadow-[0_8px_16px_rgba(255,92,152,0.24)]"
-                >
-                  <ShoppingCart size={17} />
-                  Add to cart
-                </Link>
               </div>
             </article>
           ))}
@@ -257,7 +246,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <GalleryCarousel items={galleryPreview} captions={galleryCaptions} />
+          <GalleryCarousel items={galleryPreview} />
         </div>
       </section>
 

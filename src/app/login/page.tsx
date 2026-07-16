@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <div className="container-shell max-w-5xl py-16">
-      <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr]">
         <div className="space-y-5">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--color-cocoa)]">
             Welcome back
           </p>
-          <h1 className="section-title text-5xl text-[var(--color-ink)]">
+          <h1 className="section-title max-w-xl text-[clamp(2.8rem,4.2vw,4.4rem)] leading-[1.02] text-[var(--color-ink)]">
             Log in to see your orders and marketing preferences
           </h1>
           <p className="text-lg leading-8 text-[var(--color-cocoa)]">

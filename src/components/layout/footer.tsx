@@ -3,6 +3,12 @@ import Link from "next/link";
 import { SocialQrModal } from "@/components/layout/social-qr-modal";
 import { siteConfig } from "@/lib/site";
 
+const quickLinks = [
+  { href: "/faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
+  ...siteConfig.legalLinks,
+];
+
 export function Footer() {
   return (
     <footer className="mt-20 border-t-4 border-[var(--color-butter)] bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,246,251,0.96))] py-10 backdrop-blur-xl">
@@ -22,7 +28,7 @@ export function Footer() {
             Quick links
           </p>
           <div className="space-y-2 text-sm text-[var(--color-cocoa)]">
-            {siteConfig.legalLinks.map((item) => (
+            {quickLinks.map((item) => (
               <div key={item.href}>
                 <Link href={item.href} className="transition hover:text-[var(--color-berry)]">
                   {item.label}

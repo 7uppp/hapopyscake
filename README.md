@@ -10,7 +10,7 @@ A cute pet cake ordering site built with `Next.js 16`, `Tailwind CSS 4`, `next-a
   - `3D Full Body Cake`
   - `Themed Cookie`
 - Guest checkout and account-based ordering
-- Google login plus email/password login
+- Email/password account registration and login
 - Stripe checkout session creation and webhook handling
 - Buyer confirmation email and merchant order notification email
 - Public gallery page
@@ -52,8 +52,6 @@ copy .env.example .env.local
 - `DIRECT_URL`
 - `AUTH_SECRET`
 - `NEXT_PUBLIC_SITE_URL`
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`

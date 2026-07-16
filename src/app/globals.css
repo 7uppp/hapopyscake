@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --color-cream: #fffaf1;
+  --color-cream: #fff3cf;
   --color-blush: #ffd9e8;
   --color-peach: #ffc28e;
   --color-butter: #ffe16a;
@@ -23,13 +23,13 @@
 }
 
 html {
-  background: #fffaf1;
+  background: var(--color-cream);
 }
 
 body {
   color: var(--color-ink);
   font-family: "Segoe UI Rounded", "Comic Sans MS", "Nunito Sans", "Segoe UI", sans-serif;
-  background: #fffaf1;
+  background: var(--color-cream);
 }
 
 a {
@@ -84,7 +84,7 @@ textarea {
 .nav-candy-button::before {
   content: "";
   position: absolute;
-  inset: -9px -13px;
+  inset: -9px -16px;
   z-index: -1;
   background-image: url("/button.png");
   background-position: center;
@@ -126,11 +126,27 @@ textarea {
   display: flex;
   width: max-content;
   gap: 1rem;
-  animation: gallery-scroll 32s linear infinite;
+  animation: gallery-scroll 110s linear infinite;
 }
 
 .gallery-carousel-mask:hover .gallery-carousel-track {
   animation-play-state: paused;
+}
+
+.gallery-card-reveal {
+  animation: gallery-card-reveal 460ms ease both;
+}
+
+@keyframes gallery-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .gallery-carousel-card {

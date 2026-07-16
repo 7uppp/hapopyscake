@@ -1,4 +1,3 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { getServerSession, type NextAuthOptions } from "next-auth";
@@ -14,7 +13,6 @@ const credentialsSchema = z.object({
 });
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   secret: env.authSecret,
   pages: {
     signIn: "/login",
