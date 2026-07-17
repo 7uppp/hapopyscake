@@ -4,10 +4,27 @@ import { useState, useTransition } from "react";
 
 import { signIn } from "next-auth/react";
 
-export function RegisterForm() {
+const POPUP_STORAGE_KEY = "happy-cake-marketing-popup";
+
+type RegisterFormProps = {
+  initialEmail?: string;
+};
+
+export function RegisterForm({ initialEmail = "" }: RegisterFormProps) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  function markSignupPopupCompleted() {
+    try {
+      window.localStorage.setItem(
+        POPUP_STORAGE_KEY,
+        JSON.stringify({ registeredAt: Date.now() }),
+      );
+    } catch {
+      // Local storage is optional; account creation should not depend on it.
+    }
+  }
 
   async function submit(formData: FormData) {
     setError("");
@@ -34,6 +51,7 @@ export function RegisterForm() {
     }
 
     setSuccess("Account created. Logging you in...");
+    markSignupPopupCompleted();
 
     const loginResult = await signIn("credentials", {
       email: payload.email,
@@ -73,6 +91,7 @@ export function RegisterForm() {
           <input
             type="email"
             name="email"
+            defaultValue={initialEmail}
             required
             className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-berry)]"
           />

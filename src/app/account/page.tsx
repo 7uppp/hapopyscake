@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { SignOutButton } from "@/components/ui/sign-out-button";
 import { requireSession } from "@/lib/auth-helpers";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
@@ -68,6 +69,9 @@ export default async function AccountPage() {
               <dd>{session.user.role}</dd>
             </div>
           </dl>
+          <div className="mt-8">
+            <SignOutButton />
+          </div>
         </div>
 
         <div className="glass-card rounded-[32px] border border-white/60 p-8">

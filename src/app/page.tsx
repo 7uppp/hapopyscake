@@ -1,6 +1,3 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -14,6 +11,7 @@ import { auth } from "@/auth";
 import { MarketingPopup } from "@/components/forms/marketing-popup";
 import { GalleryCarousel } from "@/components/home/gallery-carousel";
 import { HeroCarousel } from "@/components/home/hero-carousel";
+import { getCustomerGalleryItems } from "@/lib/data";
 
 const heroSlides = [
   {
@@ -99,7 +97,7 @@ const productCards: ReadonlyArray<{
     title: "3D head cake",
     price: "From $84",
     bg: "bg-[#ffd3b6]",
-    imageUrl: "/3d-head.jpg",
+    imageUrl: "/3d-head.jpg?v=20260717-1",
     imageAlt: "3D head cake product card",
   },
   {
@@ -107,7 +105,7 @@ const productCards: ReadonlyArray<{
     price: "From $69",
     badge: "Best seller",
     bg: "bg-[#ffe875]",
-    imageUrl: "/3d-full-body.jpg",
+    imageUrl: "/3d-full-body.jpg?v=20260717-1",
     imageAlt: "3D full body cake product card",
   },
   {
@@ -119,20 +117,6 @@ const productCards: ReadonlyArray<{
   },
 ] as const;
 
-async function getHappyPawsItems() {
-  const folderPath = path.join(process.cwd(), "public", "Happy paws");
-  const files = await fs.readdir(folderPath);
-
-  return files
-    .filter((file) => /\.(jpe?g|png|webp)$/i.test(file))
-    .sort((first, second) => first.localeCompare(second, undefined, { numeric: true }))
-    .map((file, index) => ({
-      id: `happy-paws-${index + 1}`,
-      imageUrl: `/Happy paws/${encodeURIComponent(file)}`,
-      alt: `Happy's Cake customer photo ${index + 1}`,
-    }));
-}
-
 const trustItems = [
   { label: "Made with love", icon: Heart },
   { label: "Pet-Safe Always", icon: PawPrint },
@@ -141,7 +125,7 @@ const trustItems = [
 
 export default async function HomePage() {
   const session = await auth();
-  const galleryPreview = await getHappyPawsItems();
+  const galleryPreview = await getCustomerGalleryItems();
 
   return (
     <div className="bg-[var(--color-cream)] pb-10">
@@ -236,7 +220,7 @@ export default async function HomePage() {
         <div className="rounded-[28px] bg-[#fff5e7] px-6 py-5">
           <div className="mb-5 flex items-center justify-between gap-4">
             <h2 className="section-title text-[2rem] font-black text-[var(--color-cocoa)] md:text-[2.4rem]">
-              Happy Pets, Happier Parents <span className="text-[var(--color-berry)]">♥</span>
+              Happy Paws, Happier Parents <span className="text-[var(--color-berry)]">♥</span>
             </h2>
             <Link
               href="/gallery"

@@ -3,18 +3,38 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 
 import { auth } from "@/auth";
+import { AccountMenu } from "@/components/layout/account-menu";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 
 export async function Header() {
   const session = await auth();
+  const accountHref = session?.user?.role === "ADMIN" ? "/admin/marketing" : "/account";
+  const accountLabel = session?.user?.role === "ADMIN" ? "Dashboard" : "Account";
+  const displayName =
+    session?.user?.name?.trim() ||
+    session?.user?.email?.split("@")[0] ||
+    "Friend";
   const navItems = [
     { href: "/", label: "Home", active: true },
     { href: "/order", label: "Shop cakes" },
     { href: "/gallery", label: "Gallery" },
+    { href: "/contact", label: "Contact" },
   ];
 
   return (
     <header className="relative z-40 bg-[var(--color-cream)]">
+      <div className="border-b border-white/70 bg-[linear-gradient(90deg,#ffd8e8_0%,#fff1a8_50%,#ffd8e8_100%)] shadow-[0_8px_20px_rgba(236,127,169,0.12)]">
+        <Link
+          href="/register"
+          className="container-shell flex min-h-11 items-center justify-center gap-3 py-2 text-center font-display text-sm font-black text-[var(--color-cocoa)] md:text-base"
+        >
+          <span className="text-xl" aria-hidden="true">🍪</span>
+          <span>
+            Sign up today and get a free cookie with your first cake order!
+          </span>
+          <span className="text-xl" aria-hidden="true">🐾</span>
+        </Link>
+      </div>
       <div className="container-shell grid grid-cols-[330px_1fr] items-start gap-8 pt-2 pb-1 max-xl:grid-cols-[290px_1fr] max-lg:flex max-lg:min-h-[132px] max-lg:items-center max-lg:justify-between max-lg:gap-4 max-lg:py-3">
         <Link href="/" className="relative -ml-8 -mb-10 block h-[188px] w-[395px] shrink-0 max-xl:-ml-3 max-xl:h-[150px] max-xl:w-[315px] max-lg:ml-0 max-lg:mb-0 max-lg:h-[112px] max-lg:w-[238px] max-md:h-[92px] max-md:w-[196px]">
           <Image
@@ -43,15 +63,11 @@ export async function Header() {
               </Link>
             ))}
             {session?.user ? (
-              <>
-                <Link
-                  href={session.user.role === "ADMIN" ? "/admin/marketing" : "/account"}
-                  className="nav-candy-button nav-candy-button-soft flex h-[44px] min-w-[92px] items-center justify-center px-4 font-display text-[11px] font-black uppercase leading-none tracking-[0.02em] text-[var(--color-cocoa)] transition hover:-translate-y-0.5 max-xl:h-10 max-xl:min-w-[84px] max-xl:text-[10px]"
-                >
-                  <span className="relative z-10">{session.user.role === "ADMIN" ? "Dashboard" : "Account"}</span>
-                </Link>
-                <SignOutButton />
-              </>
+              <AccountMenu
+                accountHref={accountHref}
+                accountLabel={accountLabel}
+                displayName={displayName}
+              />
             ) : (
               <Link
                 href="/login"
@@ -80,12 +96,20 @@ export async function Header() {
                   </Link>
                 ))}
                 {session?.user ? (
-                  <Link
-                    href={session.user.role === "ADMIN" ? "/admin/marketing" : "/account"}
-                    className="rounded-full bg-white px-5 py-3 text-center font-display text-sm font-black uppercase text-[var(--color-cocoa)]"
-                  >
-                    {session.user.role === "ADMIN" ? "Dashboard" : "Account"}
-                  </Link>
+                  <>
+                    <Link
+                      href={accountHref}
+                      className="rounded-[22px] bg-white px-5 py-3 text-center text-[var(--color-cocoa)]"
+                    >
+                      <span className="block font-display text-sm font-black text-[var(--color-berry)]">
+                        Hi, {displayName}
+                      </span>
+                      <span className="mt-1 block text-xs font-bold uppercase">
+                        {accountLabel}
+                      </span>
+                    </Link>
+                    <SignOutButton />
+                  </>
                 ) : (
                   <Link
                     href="/login"

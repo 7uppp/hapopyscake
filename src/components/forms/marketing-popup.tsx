@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "happy-cake-marketing-popup";
 const DISMISS_DAYS = 7;
@@ -9,7 +9,7 @@ const DISMISS_MS = DISMISS_DAYS * 24 * 60 * 60 * 1000;
 
 type PopupState = {
   dismissedUntil?: number;
-  subscribedAt?: number;
+  registeredAt?: number;
 };
 
 type MarketingPopupProps = {
@@ -44,9 +44,6 @@ function savePopupState(nextState: PopupState) {
 
 export function MarketingPopup({ enabled }: MarketingPopupProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [status, setStatus] = useState("");
-  const [email, setEmail] = useState("");
-  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     if (!enabled) {
@@ -56,7 +53,7 @@ export function MarketingPopup({ enabled }: MarketingPopupProps) {
     const state = readPopupState();
     const now = Date.now();
 
-    if (state.subscribedAt) {
+    if (state.registeredAt) {
       return;
     }
 
@@ -96,36 +93,10 @@ export function MarketingPopup({ enabled }: MarketingPopupProps) {
     });
 
     setIsOpen(false);
-    setStatus("");
   }
 
-  async function subscribe() {
-    setStatus("");
-
-    const response = await fetch("/api/marketing/subscribe", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      setStatus(result.error ?? "Unable to save your signup right now.");
-      return;
-    }
-
-    savePopupState({
-      subscribedAt: Date.now(),
-    });
-
-    setStatus("You're in! We'll keep you posted on new treats and offers.");
-    window.setTimeout(() => {
-      setIsOpen(false);
-      setStatus("");
-    }, 1200);
+  function goToRegister() {
+    window.location.href = "/register";
   }
 
   if (!enabled || !isOpen) {
@@ -159,36 +130,21 @@ export function MarketingPopup({ enabled }: MarketingPopupProps) {
             Welcome treat
           </p>
           <h2 className="section-title mt-3 text-4xl leading-tight text-[var(--color-ink)] md:text-5xl">
-            Want first access to cute drops and birthday deals?
+            Create an account and get a free cookie with your first cake order!
           </h2>
           <p className="mt-4 max-w-lg text-base leading-8 text-[var(--color-cocoa)]">
-            Join the email list for new product launches, seasonal promos, and
-            special offers for pet birthdays.
+            Save your details for easier ordering, birthday reminders, and sweet
+            little treats for your fur baby.
           </p>
         </div>
 
-        <form
-          className="mt-8 space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            startTransition(() => void subscribe());
-          }}
-        >
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="Email address"
-            required
-            className="w-full rounded-[22px] border border-[var(--color-blush)] bg-white px-5 py-4 text-lg outline-none transition focus:border-[var(--color-berry)]"
-          />
-
+        <div className="mt-8 space-y-4">
           <button
-            type="submit"
-            disabled={isPending}
+            type="button"
+            onClick={goToRegister}
             className="w-full rounded-[22px] bg-[var(--color-butter)] px-5 py-4 text-lg font-extrabold uppercase tracking-[0.18em] text-[var(--color-ink)] shadow-lg shadow-yellow-200/60 transition hover:-translate-y-0.5 disabled:opacity-60"
           >
-            {isPending ? "Saving..." : "Sign me up"}
+            Create account
           </button>
 
           <button
@@ -199,12 +155,10 @@ export function MarketingPopup({ enabled }: MarketingPopupProps) {
             No, thanks
           </button>
 
-          {status ? (
-            <p className="rounded-[20px] bg-white/85 px-4 py-3 text-sm text-[var(--color-cocoa)]">
-              {status}
-            </p>
-          ) : null}
-        </form>
+          <p className="rounded-[20px] bg-white/85 px-4 py-3 text-sm text-[var(--color-cocoa)]">
+            Already have an account? Log in and this popup will stay tucked away.
+          </p>
+        </div>
       </div>
     </div>
   );

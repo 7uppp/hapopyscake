@@ -6,7 +6,16 @@ export const metadata: Metadata = {
   title: "Register",
 };
 
-export default function RegisterPage() {
+type RegisterPageProps = {
+  searchParams: Promise<{ email?: string | string[] }>;
+};
+
+export default async function RegisterPage({ searchParams }: RegisterPageProps) {
+  const params = await searchParams;
+  const initialEmail = Array.isArray(params.email)
+    ? params.email[0]
+    : params.email;
+
   return (
     <div className="container-shell max-w-5xl py-16">
       <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
@@ -22,7 +31,7 @@ export default function RegisterPage() {
             the same customer profile, and manage marketing consent properly.
           </p>
         </div>
-        <RegisterForm />
+        <RegisterForm initialEmail={initialEmail ?? ""} />
       </div>
     </div>
   );
