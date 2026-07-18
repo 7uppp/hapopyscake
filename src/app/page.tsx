@@ -9,6 +9,7 @@ import {
 
 import { auth } from "@/auth";
 import { MarketingPopup } from "@/components/forms/marketing-popup";
+import { NewsletterSignupForm } from "@/components/forms/newsletter-signup-form";
 import { GalleryCarousel } from "@/components/home/gallery-carousel";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { getCustomerGalleryItems } from "@/lib/data";
@@ -183,9 +184,11 @@ export default async function HomePage() {
 
         <div className="grid gap-6 lg:grid-cols-4">
           {productCards.map((item) => (
-            <article
+            <Link
               key={item.title}
-              className="cute-card relative overflow-hidden rounded-[28px] p-3"
+              href="/order"
+              className="cute-card group relative block overflow-hidden rounded-[28px] p-3 transition hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-[var(--color-berry)]/30"
+              aria-label={`Order ${item.title}`}
             >
               {item.badge ? (
                 <div className="absolute left-3 top-3 z-20 rounded-50 bg-[var(--color-berry)] px-4 py-3 text-center text-xs font-black uppercase leading-tight text-white">
@@ -199,7 +202,7 @@ export default async function HomePage() {
                   alt={item.imageAlt}
                   fill
                   sizes="(min-width: 1024px) 280px, (min-width: 768px) 50vw, 100vw"
-                  className="object-cover"
+                  className="object-cover transition duration-300 group-hover:scale-105"
                 />
               </div>
 
@@ -211,7 +214,7 @@ export default async function HomePage() {
                   {item.price}
                 </p>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </section>
@@ -265,24 +268,7 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <form className="space-y-2">
-              <div className="flex rounded-full bg-white p-1.5 shadow-[0_8px_16px_rgba(123,68,40,0.08)]">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="min-h-12 flex-1 rounded-full bg-transparent px-6 text-sm text-[var(--color-cocoa)] outline-none placeholder:text-[var(--color-cocoa)]/55"
-                />
-                <button
-                  type="button"
-                  className="rounded-full bg-[var(--color-berry)] px-9 text-sm font-black uppercase tracking-[0.04em] text-white"
-                >
-                  Join the pack
-                </button>
-              </div>
-              <p className="text-center text-sm text-[var(--color-cocoa)]">
-                No spam, only treats &amp; tail wags! <span className="text-[var(--color-berry)]">♥</span>
-              </p>
-            </form>
+            <NewsletterSignupForm />
 
             <div className="grid grid-cols-3 gap-4">
               {trustItems.map((item) => {

@@ -13,7 +13,7 @@ import {
   type ProductType,
   calculateOrderAmount,
 } from "@/lib/products";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getMinimumBrisbanePickupDateTime } from "@/lib/utils";
 
 type OrderFormProps = {
   session: Session | null;
@@ -53,20 +53,6 @@ const defaultSelectionByProduct: Record<ProductType, Record<string, unknown>> = 
   },
 };
 
-function formatDateTimeLocal(value: Date) {
-  const offsetMs = value.getTimezoneOffset() * 60 * 1000;
-
-  return new Date(value.getTime() - offsetMs).toISOString().slice(0, 16);
-}
-
-function getMinimumPickupDateTime() {
-  const minimumDate = new Date();
-  minimumDate.setDate(minimumDate.getDate() + 7);
-  minimumDate.setSeconds(0, 0);
-
-  return formatDateTimeLocal(minimumDate);
-}
-
 export function OrderForm({ session }: OrderFormProps) {
   const [productType, setProductType] = useState<ProductType>("head-cake");
   const [selection, setSelection] = useState<Record<string, unknown>>(
@@ -83,7 +69,7 @@ export function OrderForm({ session }: OrderFormProps) {
       return "—";
     }
   }, [selection]);
-  const minimumPickupDateTime = useMemo(() => getMinimumPickupDateTime(), []);
+  const minimumPickupDateTime = useMemo(() => getMinimumBrisbanePickupDateTime(), []);
 
   function updateSelection(nextProductType: ProductType) {
     setProductType(nextProductType);
@@ -262,7 +248,7 @@ export function OrderForm({ session }: OrderFormProps) {
               className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3"
             />
             <p className="mt-2 text-xs leading-5 text-[var(--color-cocoa)]/75">
-              Please choose a pickup time at least 7 days from today.
+              Please choose a Brisbane pickup time at least 7 days from today.
             </p>
           </div>
         </div>
@@ -491,14 +477,13 @@ export function OrderForm({ session }: OrderFormProps) {
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
-                multiple
                 onChange={(event) =>
-                  setFiles(Array.from(event.target.files ?? []).slice(0, 3))
+                  setFiles(Array.from(event.target.files ?? []).slice(0, 1))
                 }
                 className="block w-full rounded-2xl border border-dashed border-[var(--color-blush)] bg-white px-4 py-3 text-sm text-[var(--color-cocoa)]"
               />
               <p className="mt-2 text-sm text-[var(--color-cocoa)]">
-                Up to 3 photos for colour matching and face details.
+                Upload 1 reference photo under 2MB for colour matching and face details.
               </p>
             </div>
           ) : null}

@@ -6,6 +6,7 @@ import { sendOrderConfirmationEmail, sendOrderNotificationEmail } from "@/lib/em
 import { prisma } from "@/lib/prisma";
 import { createOrderImageSignedUrl } from "@/lib/supabase";
 import { getStripe } from "@/lib/stripe";
+import { formatBrisbaneDateTime, formatBrisbaneDateTimeInput } from "@/lib/utils";
 
 export const runtime = "nodejs";
 
@@ -67,14 +68,23 @@ export async function POST(request: Request) {
       include: { images: true },
     });
 
+    const selection = updatedOrder.configJson as OrderSelection & {
+      pickupDateBrisbane?: string;
+    };
+    const pickupDateLabel = selection.pickupDateBrisbane
+      ? formatBrisbaneDateTimeInput(selection.pickupDateBrisbane)
+      : updatedOrder.pickupDate
+        ? formatBrisbaneDateTime(updatedOrder.pickupDate)
+        : "";
+
     const payload = {
       customerName: updatedOrder.customerName,
       email: updatedOrder.email,
       phone: updatedOrder.phone,
-      pickupDate: updatedOrder.pickupDate?.toISOString() ?? "",
+      pickupDate: pickupDateLabel,
       notes: updatedOrder.notes ?? "",
       marketingOptIn: updatedOrder.marketingOptIn,
-      selection: updatedOrder.configJson as OrderSelection,
+      selection,
       imageUploads: updatedOrder.images.map((image) => ({
         path: image.path,
         originalName: image.originalName,

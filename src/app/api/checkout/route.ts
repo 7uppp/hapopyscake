@@ -5,6 +5,7 @@ import { createCheckoutSession } from "@/lib/stripe";
 import { env } from "@/lib/env";
 import { calculateOrderAmount, orderPayloadSchema } from "@/lib/products";
 import { prisma } from "@/lib/prisma";
+import { parseBrisbaneDateTime } from "@/lib/utils";
 
 export const runtime = "nodejs";
 
@@ -29,6 +30,11 @@ export async function POST(request: Request) {
       ? session.user.id
       : null;
   const amountCents = calculateOrderAmount(parsed.data.selection) * 100;
+  const pickupDate = parseBrisbaneDateTime(parsed.data.pickupDate);
+
+  if (!pickupDate) {
+    return NextResponse.json({ error: "Please choose a valid pickup time." }, { status: 400 });
+  }
 
   const order = await prisma.order.create({
     data: {
@@ -36,11 +42,14 @@ export async function POST(request: Request) {
       customerName: parsed.data.customerName,
       email: parsed.data.email.toLowerCase(),
       phone: parsed.data.phone,
-      pickupDate: new Date(parsed.data.pickupDate),
+      pickupDate,
       notes: parsed.data.notes,
       marketingOptIn: parsed.data.marketingOptIn,
       productType: parsed.data.selection.productType,
-      configJson: parsed.data.selection,
+      configJson: {
+        ...parsed.data.selection,
+        pickupDateBrisbane: parsed.data.pickupDate,
+      },
       amountCents,
       currency: "AUD",
       status: "PENDING_PAYMENT",
@@ -56,6 +65,12 @@ export async function POST(request: Request) {
         : undefined,
     },
   });
+
+  await prisma.$executeRaw`
+    UPDATE "Order"
+    SET "pickupDate" = ${parsed.data.pickupDate}::timestamp
+    WHERE "id" = ${order.id}
+  `;
 
   const checkoutSession = await createCheckoutSession({
     orderId: order.id,

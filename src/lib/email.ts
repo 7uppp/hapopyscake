@@ -36,8 +36,12 @@ export async function sendOrderConfirmationEmail(options: {
         <p>We have received your payment and your pickup request is now in our baking queue.</p>
         <table style="margin:16px 0;border-collapse:collapse;">${renderSummaryRows(options.payload)}</table>
         <p><strong>Pickup request:</strong> ${options.payload.pickupDate}</p>
+        <p><strong>Pickup address:</strong> 18 Park Close, Hillcrest QLD 4118</p>
+        <p><strong>Pickup contact:</strong> 0472707510</p>
         <p><strong>Total paid:</strong> ${amount}</p>
-        <p>Please reply to this email if you need to update colours, reference details, or allergy notes.</p>
+        <p>Please arrive on time for pickup and avoid arriving early. Please text or call us around 20 minutes before you arrive.</p>
+        <p>We cannot accept any order changes within 3 days of your pickup time.</p>
+        <p>Please reply to this email if you need to update colours, reference details, or allergy notes before that cutoff.</p>
       </div>
     `,
   });
@@ -58,7 +62,9 @@ export async function sendOrderNotificationEmail(options: {
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#2e241d;">
         <h1 style="margin-bottom:8px;">New paid order received</h1>
         <p><strong>Order ID:</strong> ${options.orderId}</p>
-        <p><strong>Customer:</strong> ${options.payload.customerName} · ${options.payload.email} · ${options.payload.phone}</p>
+        <p><strong>Customer:</strong> ${options.payload.customerName}</p>
+        <p><strong>Email:</strong> ${options.payload.email}</p>
+        <p><strong>Phone:</strong> ${options.payload.phone}</p>
         <table style="margin:16px 0;border-collapse:collapse;">${renderSummaryRows(options.payload)}</table>
         <p><strong>Pickup request:</strong> ${options.payload.pickupDate}</p>
         <p><strong>Special notes:</strong> ${options.payload.notes || "None"}</p>

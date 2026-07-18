@@ -18,7 +18,7 @@ export default async function GalleryPage() {
           Gallery
         </p>
         <h1 className="section-title mt-3 text-4xl leading-tight text-[var(--color-ink)] md:text-5xl">
-          Happy Pets Gallery
+          Happy Paws Gallery
         </h1>
         <p className="mt-4 text-lg leading-8 text-[var(--color-cocoa)]">
           Sweet moments from our furry customers and their custom birthday cakes.

@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { formatCurrency } from "@/lib/utils";
+import {
+  formatCurrency,
+  getMinimumBrisbanePickupDateTime,
+  parseBrisbaneDateTime,
+} from "@/lib/utils";
 
 export const colourOptions = [
   "Blush Pink",
@@ -132,13 +136,11 @@ const commonCustomerSchema = z.object({
     .string()
     .min(1, "Please choose a pickup date and time.")
     .refine((value) => {
-      const selectedDate = new Date(value);
-      const minimumDate = new Date();
-      minimumDate.setDate(minimumDate.getDate() + 7);
-      minimumDate.setSeconds(0, 0);
+      const selectedDate = parseBrisbaneDateTime(value);
+      const minimumDate = parseBrisbaneDateTime(getMinimumBrisbanePickupDateTime());
 
-      return !Number.isNaN(selectedDate.getTime()) && selectedDate >= minimumDate;
-    }, "Please choose a pickup time at least 7 days from today."),
+      return Boolean(selectedDate && minimumDate && selectedDate >= minimumDate);
+    }, "Please choose a pickup time at least 7 days from today in Brisbane time."),
   notes: z.string().max(600).optional().default(""),
   marketingOptIn: z.boolean().default(false),
 });

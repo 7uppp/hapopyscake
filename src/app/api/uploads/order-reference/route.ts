@@ -7,7 +7,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase";
 export const runtime = "nodejs";
 
 const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-const maxFileSize = 6 * 1024 * 1024;
+const maxFileSize = 2 * 1024 * 1024;
 
 export async function POST(request: Request) {
   if (!env.hasSupabase) {
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
   if (file.size > maxFileSize) {
     return NextResponse.json(
-      { error: "Please keep uploads under 6MB each." },
+      { error: "Please keep uploads under 2MB." },
       { status: 400 },
     );
   }

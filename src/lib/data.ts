@@ -25,6 +25,11 @@ function getNumericSortValue(fileName: string) {
   return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
 }
 
+function getTitleSortValue(title: string) {
+  const value = Number.parseInt(title.replace(/\D/g, ""), 10);
+  return Number.isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
+}
+
 function readPngDimensions(buffer: Buffer) {
   return {
     width: buffer.readUInt32BE(16),
@@ -146,23 +151,30 @@ export async function getCustomerGalleryItems() {
 
   try {
     const items = await prisma.galleryItem.findMany({
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      orderBy: [{ featured: "desc" }, { title: "asc" }],
     });
 
     if (items.length === 0) {
       return getFallbackGalleryItems();
     }
 
-    return items.map((item) => ({
-      id: item.id,
-      title: item.title,
-      alt: item.alt,
-      caption: item.caption ?? "",
-      category: item.category,
-      imageUrl: getGalleryPublicUrl(item.storagePath),
-      width: 900,
-      height: 1100,
-    }));
+    return items
+      .sort(
+        (first, second) =>
+          Number(second.featured) - Number(first.featured) ||
+          getTitleSortValue(first.title) - getTitleSortValue(second.title) ||
+          first.title.localeCompare(second.title),
+      )
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        alt: item.alt,
+        caption: item.caption ?? "",
+        category: item.category,
+        imageUrl: getGalleryPublicUrl(item.storagePath),
+        width: 900,
+        height: 1100,
+      }));
   } catch {
     return getFallbackGalleryItems();
   }
