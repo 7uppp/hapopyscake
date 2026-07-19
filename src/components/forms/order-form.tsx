@@ -3,6 +3,8 @@
 import { useMemo, useState, useTransition } from "react";
 
 import type { Session } from "next-auth";
+import Image from "next/image";
+import Link from "next/link";
 
 import {
   addOnCatalog,
@@ -17,6 +19,19 @@ import { formatCurrency, getMinimumBrisbanePickupDateTime } from "@/lib/utils";
 
 type OrderFormProps = {
   session: Session | null;
+  firstOrderCookieEligible: boolean;
+  initialProductType?: ProductType;
+  productPreviewImages?: ProductPreviewImage[];
+  productPreviewImagesByType?: Partial<Record<ProductType, ProductPreviewImage[]>>;
+  lockProductSelection?: boolean;
+};
+
+type ProductPreviewImage = {
+  id: string;
+  imageUrl: string;
+  alt: string;
+  width: number;
+  height: number;
 };
 
 const defaultSelectionByProduct: Record<ProductType, Record<string, unknown>> = {
@@ -53,13 +68,21 @@ const defaultSelectionByProduct: Record<ProductType, Record<string, unknown>> = 
   },
 };
 
-export function OrderForm({ session }: OrderFormProps) {
-  const [productType, setProductType] = useState<ProductType>("head-cake");
+export function OrderForm({
+  session,
+  firstOrderCookieEligible,
+  initialProductType = "head-cake",
+  productPreviewImages = [],
+  productPreviewImagesByType,
+  lockProductSelection = false,
+}: OrderFormProps) {
+  const [productType, setProductType] = useState<ProductType>(initialProductType);
   const [selection, setSelection] = useState<Record<string, unknown>>(
-    defaultSelectionByProduct["head-cake"],
+    defaultSelectionByProduct[initialProductType],
   );
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState("");
+  const [previewImage, setPreviewImage] = useState<ProductPreviewImage | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const pricePreview = useMemo(() => {
@@ -70,6 +93,8 @@ export function OrderForm({ session }: OrderFormProps) {
     }
   }, [selection]);
   const minimumPickupDateTime = useMemo(() => getMinimumBrisbanePickupDateTime(), []);
+  const activeProductPreviewImages =
+    productPreviewImagesByType?.[productType] ?? productPreviewImages;
 
   function updateSelection(nextProductType: ProductType) {
     setProductType(nextProductType);
@@ -178,27 +203,90 @@ export function OrderForm({ session }: OrderFormProps) {
           </p>
         </div>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-2">
-          {productCatalog.map((product) => (
-            <button
-              key={product.type}
-              type="button"
-              onClick={() => updateSelection(product.type)}
-              className={`rounded-[28px] border p-5 text-left transition ${
-                productType === product.type
-                  ? "border-[var(--color-berry)] bg-white shadow-lg shadow-pink-200/60"
-                  : "border-white/60 bg-white/70 hover:-translate-y-0.5"
-              }`}
-            >
-              <p className="font-display text-xl text-[var(--color-ink)]">
-                {product.title}
+        {!session?.user || firstOrderCookieEligible ? (
+          <div className="mb-8 rounded-[24px] border border-[var(--color-blush)] bg-white/80 px-5 py-4 text-sm leading-6 text-[var(--color-cocoa)]">
+            {session?.user ? (
+              <p>
+                <strong className="text-[var(--color-berry)]">
+                  First-order bonus:
+                </strong>{" "}
+                Your account is eligible for 1 free cookie with this cake order.
               </p>
-              <p className="mt-2 text-sm leading-6 text-[var(--color-cocoa)]">
-                {product.description}
-              </p>
-            </button>
-          ))}
-        </div>
+            ) : (
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p>
+                  Create an account or log in before ordering to claim 1 free
+                  cookie with your first paid cake order.
+                </p>
+                <div className="flex gap-2">
+                  <Link
+                    href="/register"
+                    className="rounded-full bg-[var(--color-berry)] px-4 py-2 text-xs font-black uppercase tracking-[0.04em] text-white transition hover:-translate-y-0.5"
+                  >
+                    Register
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="rounded-full border border-[var(--color-blush)] bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.04em] text-[var(--color-berry)] transition hover:-translate-y-0.5"
+                  >
+                    Log in
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {!lockProductSelection ? (
+          <div className="mb-8 grid gap-4 md:grid-cols-2">
+            {productCatalog.map((product) => (
+              <button
+                key={product.type}
+                type="button"
+                onClick={() => updateSelection(product.type)}
+                className={`rounded-[28px] border p-5 text-left transition ${
+                  productType === product.type
+                    ? "border-[var(--color-berry)] bg-white shadow-lg shadow-pink-200/60"
+                    : "border-white/60 bg-white/70 hover:-translate-y-0.5"
+                }`}
+              >
+                <p className="font-display text-xl text-[var(--color-ink)]">
+                  {product.title}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[var(--color-cocoa)]">
+                  {product.description}
+                </p>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        {activeProductPreviewImages.length > 0 ? (
+          <div className="mb-8">
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-[var(--color-cocoa)]">
+              Product examples
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {activeProductPreviewImages.map((image) => (
+                <button
+                  key={image.id}
+                  type="button"
+                  onClick={() => setPreviewImage(image)}
+                  className="relative aspect-[4/3] overflow-hidden rounded-[24px] border-4 border-white bg-white shadow-[0_12px_24px_rgba(122,74,50,0.08)]"
+                  aria-label={`View larger ${image.alt}`}
+                >
+                  <Image
+                    src={image.imageUrl}
+                    alt={image.alt}
+                    fill
+                    sizes="(min-width: 1024px) 240px, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
@@ -552,6 +640,39 @@ export function OrderForm({ session }: OrderFormProps) {
           </ol>
         </div>
       </aside>
+
+      {previewImage ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#2b1a12]/45 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product example preview"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="relative w-full max-w-5xl overflow-hidden rounded-[32px] border-4 border-white bg-[#fff8eb] shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setPreviewImage(null)}
+              className="absolute right-4 top-4 z-10 rounded-full bg-white/90 px-4 py-2 text-sm font-black uppercase text-[var(--color-cocoa)] shadow-lg transition hover:-translate-y-0.5"
+              aria-label="Close product example preview"
+            >
+              Close
+            </button>
+            <div className="relative aspect-[4/3] max-h-[82vh] bg-[#fff8eb]">
+              <Image
+                src={previewImage.imageUrl}
+                alt={previewImage.alt}
+                fill
+                sizes="100vw"
+                className="object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

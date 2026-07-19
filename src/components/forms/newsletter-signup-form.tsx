@@ -41,12 +41,12 @@ export function NewsletterSignupForm() {
           name="email"
           required
           placeholder="Enter your email"
-          className="min-h-12 flex-1 rounded-full bg-transparent px-6 text-sm text-[var(--color-cocoa)] outline-none placeholder:text-[var(--color-cocoa)]/55"
+          className="min-h-12 min-w-0 flex-1 rounded-full bg-transparent px-5 text-sm text-[var(--color-cocoa)] outline-none placeholder:text-[var(--color-cocoa)]/55"
         />
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-full bg-[var(--color-berry)] px-9 text-sm font-black uppercase tracking-[0.04em] text-white transition hover:-translate-y-0.5 disabled:opacity-60"
+          className="whitespace-nowrap rounded-full bg-[var(--color-berry)] px-6 text-xs font-black uppercase tracking-[0.04em] text-white transition hover:-translate-y-0.5 disabled:opacity-60 sm:px-7"
         >
           {isPending ? "Joining..." : "Join the pack"}
         </button>

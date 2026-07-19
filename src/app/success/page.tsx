@@ -92,16 +92,16 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link
-            href="/order"
+            href="/"
             className="rounded-full bg-[var(--color-berry)] px-6 py-3 font-bold text-white shadow-lg shadow-pink-300/50 transition hover:-translate-y-0.5"
           >
-            Back to order
+            Back to home
           </Link>
           <Link
-            href="/contact"
+            href="/order"
             className="rounded-full border border-[var(--color-blush)] bg-white/80 px-6 py-3 font-bold text-[var(--color-berry)] transition hover:bg-white"
           >
-            Contact us
+            Order another one
           </Link>
         </div>
       </div>

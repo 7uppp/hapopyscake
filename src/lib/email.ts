@@ -6,12 +6,16 @@ import { buildOrderSummary, calculateOrderAmount } from "@/lib/products";
 import { createUnsubscribeToken } from "@/lib/security";
 import { formatCurrency } from "@/lib/utils";
 
+type EmailOrderPayload = OrderPayload & {
+  firstOrderCookieIncluded?: boolean;
+};
+
 function getResend() {
   assertServerEnv(env.hasResend, "Resend is not configured.");
   return new Resend(process.env.RESEND_API_KEY!);
 }
 
-function renderSummaryRows(payload: OrderPayload) {
+function renderSummaryRows(payload: EmailOrderPayload) {
   return buildOrderSummary(payload.selection)
     .map(
       (item) =>
@@ -21,7 +25,7 @@ function renderSummaryRows(payload: OrderPayload) {
 }
 
 export async function sendOrderConfirmationEmail(options: {
-  payload: OrderPayload;
+  payload: EmailOrderPayload;
 }) {
   const resend = getResend();
   const amount = formatCurrency(calculateOrderAmount(options.payload.selection));
@@ -39,6 +43,11 @@ export async function sendOrderConfirmationEmail(options: {
         <p><strong>Pickup address:</strong> 18 Park Close, Hillcrest QLD 4118</p>
         <p><strong>Pickup contact:</strong> 0472707510</p>
         <p><strong>Total paid:</strong> ${amount}</p>
+        ${
+          options.payload.firstOrderCookieIncluded
+            ? "<p><strong>First-order bonus:</strong> 1 free cookie is included with this order.</p>"
+            : ""
+        }
         <p>Please arrive on time for pickup and avoid arriving early. Please text or call us around 20 minutes before you arrive.</p>
         <p>We cannot accept any order changes within 3 days of your pickup time.</p>
         <p>Please reply to this email if you need to update colours, reference details, or allergy notes before that cutoff.</p>
@@ -48,7 +57,7 @@ export async function sendOrderConfirmationEmail(options: {
 }
 
 export async function sendOrderNotificationEmail(options: {
-  payload: OrderPayload;
+  payload: EmailOrderPayload;
   orderId: string;
   imageUrls: string[];
 }) {
@@ -65,6 +74,11 @@ export async function sendOrderNotificationEmail(options: {
         <p><strong>Customer:</strong> ${options.payload.customerName}</p>
         <p><strong>Email:</strong> ${options.payload.email}</p>
         <p><strong>Phone:</strong> ${options.payload.phone}</p>
+        <p><strong>First-order bonus:</strong> ${
+          options.payload.firstOrderCookieIncluded
+            ? "Free cookie included"
+            : "Not included"
+        }</p>
         <table style="margin:16px 0;border-collapse:collapse;">${renderSummaryRows(options.payload)}</table>
         <p><strong>Pickup request:</strong> ${options.payload.pickupDate}</p>
         <p><strong>Special notes:</strong> ${options.payload.notes || "None"}</p>

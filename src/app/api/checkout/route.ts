@@ -36,6 +36,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please choose a valid pickup time." }, { status: 400 });
   }
 
+  const firstOrderCookieIncluded = userId
+    ? (await prisma.order.count({
+        where: {
+          userId,
+          status: "PAID",
+        },
+      })) === 0
+    : false;
+
   const order = await prisma.order.create({
     data: {
       userId,
@@ -49,6 +58,7 @@ export async function POST(request: Request) {
       configJson: {
         ...parsed.data.selection,
         pickupDateBrisbane: parsed.data.pickupDate,
+        firstOrderCookieIncluded,
       },
       amountCents,
       currency: "AUD",

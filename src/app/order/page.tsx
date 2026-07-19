@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 
 import { auth } from "@/auth";
 import { OrderForm } from "@/components/forms/order-form";
+import { getProductGalleryPreview } from "@/lib/data";
+import { env } from "@/lib/env";
+import { prisma } from "@/lib/prisma";
+import { productCatalog } from "@/lib/products";
 
 export const metadata: Metadata = {
   title: "Order",
@@ -10,6 +14,23 @@ export const metadata: Metadata = {
 
 export default async function OrderPage() {
   const session = await auth();
+  const paidOrderCount =
+    session?.user?.id && env.hasDatabase
+      ? await prisma.order.count({
+          where: {
+            userId: session.user.id,
+            status: "PAID",
+          },
+        })
+      : null;
+  const firstOrderCookieEligible = paidOrderCount === 0;
+  const productPreviewEntries = await Promise.all(
+    productCatalog.map(async (product) => [
+      product.type,
+      await getProductGalleryPreview(product.type, 6),
+    ]),
+  );
+  const productPreviewImagesByType = Object.fromEntries(productPreviewEntries);
 
   return (
     <div className="container-shell py-16">
@@ -25,7 +46,11 @@ export default async function OrderPage() {
           orders and stay on the birthday reminder list.
         </p>
       </div>
-      <OrderForm session={session} />
+      <OrderForm
+        session={session}
+        firstOrderCookieEligible={firstOrderCookieEligible}
+        productPreviewImagesByType={productPreviewImagesByType}
+      />
     </div>
   );
 }

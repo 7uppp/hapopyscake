@@ -86,6 +86,7 @@ const productCards: ReadonlyArray<{
   bg: string;
   imageUrl: string;
   imageAlt: string;
+  href: string;
 }> = [
   {
     title: "3D head cupcake",
@@ -93,6 +94,7 @@ const productCards: ReadonlyArray<{
     bg: "bg-[#d9f7e9]",
     imageUrl: "/3d-head-cupCake.jpg",
     imageAlt: "3D head cupcake product card",
+    href: "/order/head-cupcake",
   },
   {
     title: "3D head cake",
@@ -100,6 +102,7 @@ const productCards: ReadonlyArray<{
     bg: "bg-[#ffd3b6]",
     imageUrl: "/3d-head.jpg?v=20260717-1",
     imageAlt: "3D head cake product card",
+    href: "/order/head-cake",
   },
   {
     title: "3D full body cake",
@@ -108,6 +111,7 @@ const productCards: ReadonlyArray<{
     bg: "bg-[#ffe875]",
     imageUrl: "/3d-full-body.jpg?v=20260717-1",
     imageAlt: "3D full body cake product card",
+    href: "/order/full-body-cake",
   },
   {
     title: "themed Cookie",
@@ -115,6 +119,7 @@ const productCards: ReadonlyArray<{
     bg: "bg-[#ffd1e4]",
     imageUrl: "/cookies.jpg",
     imageAlt: "themed Cookie product card",
+    href: "/order/themed-cookie",
   },
 ] as const;
 
@@ -186,7 +191,7 @@ export default async function HomePage() {
           {productCards.map((item) => (
             <Link
               key={item.title}
-              href="/order"
+              href={item.href}
               className="cute-card group relative block overflow-hidden rounded-[28px] p-3 transition hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-[var(--color-berry)]/30"
               aria-label={`Order ${item.title}`}
             >

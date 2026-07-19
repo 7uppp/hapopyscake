@@ -104,29 +104,35 @@ export type AddOnKey = keyof typeof addOnCatalog;
 export const productCatalog = [
   {
     type: "head-cupcake" as const,
+    slug: "head-cupcake",
     title: "3D Head Cupcake",
     description:
       "A cute cupcake topper sculpted to look like your pet, finished in your chosen colours.",
   },
   {
     type: "head-cake" as const,
+    slug: "head-cake",
     title: "3D Head Cake",
     description:
       "Single-head or double-head celebration cake with a custom colour palette and your pet's name.",
   },
   {
     type: "full-body-cake" as const,
+    slug: "full-body-cake",
     title: "3D Full Body Cake",
     description:
       "A full sculpted body cake with optional styling add-ons for an extra playful finish.",
   },
   {
     type: "themed-cookie" as const,
+    slug: "themed-cookie",
     title: "Themed Cookie Set",
     description:
       "A matching cookie party set with custom theme, colour story, name plaque, and age details.",
   },
 ] as const;
+
+export type ProductSlug = (typeof productCatalog)[number]["slug"];
 
 const commonCustomerSchema = z.object({
   customerName: z.string().min(2, "Please enter your name."),

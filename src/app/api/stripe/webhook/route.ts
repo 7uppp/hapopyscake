@@ -70,6 +70,7 @@ export async function POST(request: Request) {
 
     const selection = updatedOrder.configJson as OrderSelection & {
       pickupDateBrisbane?: string;
+      firstOrderCookieIncluded?: boolean;
     };
     const pickupDateLabel = selection.pickupDateBrisbane
       ? formatBrisbaneDateTimeInput(selection.pickupDateBrisbane)
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
       notes: updatedOrder.notes ?? "",
       marketingOptIn: updatedOrder.marketingOptIn,
       selection,
+      firstOrderCookieIncluded: Boolean(selection.firstOrderCookieIncluded),
       imageUploads: updatedOrder.images.map((image) => ({
         path: image.path,
         originalName: image.originalName,

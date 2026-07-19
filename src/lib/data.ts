@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { fallbackGalleryItems } from "@/lib/site";
 import { getGalleryPublicUrl } from "@/lib/supabase";
+import type { ProductType } from "@/lib/products";
 
 export type GalleryItemData = {
   id: string;
@@ -18,7 +19,21 @@ export type GalleryItemData = {
 };
 
 const customerGalleryFolders = [{ folder: "Happy paws", category: "Happy Paws" }] as const;
-const fixedCakeGalleryFolders = [{ folder: "cakes", category: "Custom Cakes" }] as const;
+const fixedCakeGalleryFolders = [
+  { folder: "cakes/3D head", category: "3D Head Cakes" },
+  { folder: "cakes/3D full body", category: "3D Full Body Cakes" },
+  { folder: "cakes/3D head cupcake", category: "3D Head Cupcakes" },
+  { folder: "cakes/cookies", category: "Cookies" },
+] as const;
+const productGalleryFolders: Record<
+  ProductType,
+  { folder: string; category: string }
+> = {
+  "head-cupcake": { folder: "cakes/3D head cupcake", category: "3D Head Cupcakes" },
+  "head-cake": { folder: "cakes/3D head", category: "3D Head Cakes" },
+  "full-body-cake": { folder: "cakes/3D full body", category: "3D Full Body Cakes" },
+  "themed-cookie": { folder: "cakes/cookies", category: "Cookies" },
+};
 
 function getNumericSortValue(fileName: string) {
   const value = Number.parseInt(fileName.replace(/\D/g, ""), 10);
@@ -79,7 +94,7 @@ async function getLocalGalleryItems(
 ): Promise<GalleryItemData[]> {
   const itemGroups = await Promise.all(
     folders.map(async ({ folder, category }) => {
-      const folderPath = path.join(process.cwd(), "public", folder);
+      const folderPath = path.join(process.cwd(), "public", ...folder.split("/"));
       const files = (await fs.readdir(folderPath))
         .filter((file) => /\.(jpe?g|png|webp)$/i.test(file))
         .sort((first, second) => getNumericSortValue(first) - getNumericSortValue(second));
@@ -141,6 +156,15 @@ export async function getGalleryItems() {
     return [...customerItems, ...fixedCakeItems];
   } catch {
     return customerItems;
+  }
+}
+
+export async function getProductGalleryPreview(productType: ProductType, limit = 6) {
+  try {
+    const items = await getLocalGalleryItems([productGalleryFolders[productType]]);
+    return items.slice(0, limit);
+  } catch {
+    return [];
   }
 }
 
