@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/auth";
-import { isAdminEmail } from "@/lib/auth-helpers";
 import { env } from "@/lib/env";
 import { sendMarketingEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
@@ -17,7 +16,7 @@ const campaignSchema = z.object({
 export async function POST(request: Request) {
   const session = await auth();
 
-  if (!session?.user?.email || (!isAdminEmail(session.user.email) && session.user.role !== "ADMIN")) {
+  if (session?.user?.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 

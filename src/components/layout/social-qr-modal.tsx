@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
@@ -36,11 +36,6 @@ type SocialItem = (typeof socialItems)[number];
 
 export function SocialQrModal() {
   const [activeSocial, setActiveSocial] = useState<SocialItem | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   return (
     <>
@@ -64,57 +59,57 @@ export function SocialQrModal() {
         ))}
       </div>
 
-      {isMounted && activeSocial
+      {activeSocial
         ? createPortal(
-        <div
-          className="fixed inset-0 z-[100] grid h-dvh w-dvw place-items-center overflow-y-auto bg-[#4f2f23]/45 px-4 py-8 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${activeSocial.label} QR code`}
-          onClick={() => setActiveSocial(null)}
-        >
-          <div
-            className="relative w-full max-w-md rounded-[32px] border-4 border-white bg-[#fffaf1] p-5 text-center shadow-[0_24px_70px_rgba(79,47,35,0.22)]"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
+            <div
+              className="fixed inset-0 z-[100] grid h-dvh w-dvw place-items-center overflow-y-auto bg-[#4f2f23]/45 px-4 py-8 backdrop-blur-sm"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${activeSocial.label} QR code`}
               onClick={() => setActiveSocial(null)}
-              aria-label="Close social QR modal"
-              className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-white text-[var(--color-cocoa)] shadow-sm transition hover:bg-[var(--color-blush)]"
             >
-              <X size={18} />
-            </button>
-
-            <p className="font-display text-2xl font-black text-[var(--color-cocoa)]">
-              Follow us on {activeSocial.label}
-            </p>
-            <p className="mt-2 text-sm text-[var(--color-cocoa)]/80">
-              Scan the QR code to connect with Happy&apos;s Cake.
-            </p>
-
-            <div className="mt-6 flex aspect-square items-center justify-center rounded-[26px] bg-white p-3 shadow-inner">
-              <Image
-                src={activeSocial.qrSrc}
-                alt={`${activeSocial.label} QR code`}
-                width={420}
-                height={420}
-                className="max-h-full max-w-full rounded-[18px] object-contain"
-              />
-            </div>
-
-            {"pageUrl" in activeSocial ? (
-              <a
-                href={activeSocial.pageUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-5 inline-flex h-11 items-center justify-center rounded-full bg-[var(--color-berry)] px-7 font-display text-sm font-black uppercase tracking-[0.04em] text-white shadow-[0_10px_18px_rgba(236,127,169,0.22)] transition hover:-translate-y-0.5"
+              <div
+                className="relative w-full max-w-md rounded-[32px] border-4 border-white bg-[#fffaf1] p-5 text-center shadow-[0_24px_70px_rgba(79,47,35,0.22)]"
+                onClick={(event) => event.stopPropagation()}
               >
-                Visit page
-              </a>
-            ) : null}
-          </div>
-        </div>,
+                <button
+                  type="button"
+                  onClick={() => setActiveSocial(null)}
+                  aria-label="Close social QR modal"
+                  className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-white text-[var(--color-cocoa)] shadow-sm transition hover:bg-[var(--color-blush)]"
+                >
+                  <X size={18} />
+                </button>
+
+                <p className="font-display text-2xl font-black text-[var(--color-cocoa)]">
+                  Follow us on {activeSocial.label}
+                </p>
+                <p className="mt-2 text-sm text-[var(--color-cocoa)]/80">
+                  Scan the QR code to connect with Happy&apos;s Cake.
+                </p>
+
+                <div className="mt-6 flex aspect-square items-center justify-center rounded-[26px] bg-white p-3 shadow-inner">
+                  <Image
+                    src={activeSocial.qrSrc}
+                    alt={`${activeSocial.label} QR code`}
+                    width={420}
+                    height={420}
+                    className="max-h-full max-w-full rounded-[18px] object-contain"
+                  />
+                </div>
+
+                {"pageUrl" in activeSocial ? (
+                  <a
+                    href={activeSocial.pageUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-5 inline-flex h-11 items-center justify-center rounded-full bg-[var(--color-berry)] px-7 font-display text-sm font-black uppercase tracking-[0.04em] text-white shadow-[0_10px_18px_rgba(236,127,169,0.22)] transition hover:-translate-y-0.5"
+                  >
+                    Visit page
+                  </a>
+                ) : null}
+              </div>
+            </div>,
           document.body,
         )
         : null}

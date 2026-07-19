@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 
@@ -29,9 +29,9 @@ export function LazyGalleryGrid({ items }: LazyGalleryGridProps) {
   );
   const hasMore = visibleCount < items.length;
 
-  function loadMoreItems() {
+  const loadMoreItems = useCallback(() => {
     setVisibleCount((current) => Math.min(current + loadMoreCount, items.length));
-  }
+  }, [items.length]);
 
   useEffect(() => {
     const loadMoreElement = loadMoreRef.current;
@@ -75,7 +75,7 @@ export function LazyGalleryGrid({ items }: LazyGalleryGridProps) {
       observer.disconnect();
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [hasMore, items.length, visibleCount]);
+  }, [hasMore, loadMoreItems, visibleCount]);
 
   useEffect(() => {
     if (!selectedItem) {

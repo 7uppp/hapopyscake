@@ -10,6 +10,12 @@ import { formatBrisbaneDateTime, formatBrisbaneDateTimeInput } from "@/lib/utils
 
 export const runtime = "nodejs";
 
+function isAllowedOrderImageMimeType(
+  mimeType: string,
+): mimeType is "image/jpeg" | "image/png" | "image/webp" {
+  return ["image/jpeg", "image/png", "image/webp"].includes(mimeType);
+}
+
 export async function POST(request: Request) {
   if (!env.hasStripe || !env.hasStripeWebhook || !env.hasDatabase) {
     return NextResponse.json(
@@ -58,6 +64,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     }
 
+    if (
+      session.id !== order.stripeSessionId ||
+      session.payment_status !== "paid" ||
+      session.amount_total !== order.amountCents ||
+      session.currency?.toUpperCase() !== order.currency
+    ) {
+      return NextResponse.json({ received: true });
+    }
+
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
@@ -87,11 +102,19 @@ export async function POST(request: Request) {
       marketingOptIn: updatedOrder.marketingOptIn,
       selection,
       firstOrderCookieIncluded: Boolean(selection.firstOrderCookieIncluded),
-      imageUploads: updatedOrder.images.map((image) => ({
-        path: image.path,
-        originalName: image.originalName,
-        mimeType: image.mimeType,
-      })),
+      imageUploads: updatedOrder.images.flatMap((image) => {
+        if (!isAllowedOrderImageMimeType(image.mimeType)) {
+          return [];
+        }
+
+        return [
+          {
+            path: image.path,
+            originalName: image.originalName,
+            mimeType: image.mimeType,
+          },
+        ];
+      }),
     };
 
     const imageUrls = await Promise.all(

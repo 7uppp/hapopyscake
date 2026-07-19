@@ -25,7 +25,7 @@ export default async function AccountPage() {
   if (env.hasDatabase) {
     orders = await prisma.order.findMany({
       where: {
-        OR: [{ userId: session.user.id }, { email: session.user.email ?? "" }],
+        userId: session.user.id,
       },
       orderBy: { createdAt: "desc" },
       select: {

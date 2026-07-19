@@ -15,11 +15,20 @@ function getResend() {
   return new Resend(process.env.RESEND_API_KEY!);
 }
 
+function escapeHtml(value: unknown) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function renderSummaryRows(payload: EmailOrderPayload) {
   return buildOrderSummary(payload.selection)
     .map(
       (item) =>
-        `<tr><td style="padding:6px 12px 6px 0;font-weight:600;">${item.label}</td><td style="padding:6px 0;">${item.value}</td></tr>`,
+        `<tr><td style="padding:6px 12px 6px 0;font-weight:600;">${escapeHtml(item.label)}</td><td style="padding:6px 0;">${escapeHtml(item.value)}</td></tr>`,
     )
     .join("");
 }
@@ -36,10 +45,10 @@ export async function sendOrderConfirmationEmail(options: {
     subject: `Your ${env.siteUrl.includes("localhost") ? "sample" : ""} Happy's Cake order is confirmed`,
     html: `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#2e241d;">
-        <h1 style="margin-bottom:8px;">Thanks for your order, ${options.payload.customerName}.</h1>
+        <h1 style="margin-bottom:8px;">Thanks for your order, ${escapeHtml(options.payload.customerName)}.</h1>
         <p>We have received your payment and your pickup request is now in our baking queue.</p>
         <table style="margin:16px 0;border-collapse:collapse;">${renderSummaryRows(options.payload)}</table>
-        <p><strong>Pickup request:</strong> ${options.payload.pickupDate}</p>
+        <p><strong>Pickup request:</strong> ${escapeHtml(options.payload.pickupDate)}</p>
         <p><strong>Pickup address:</strong> 18 Park Close, Hillcrest QLD 4118</p>
         <p><strong>Pickup contact:</strong> 0472707510</p>
         <p><strong>Total paid:</strong> ${amount}</p>
@@ -70,22 +79,22 @@ export async function sendOrderNotificationEmail(options: {
     html: `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#2e241d;">
         <h1 style="margin-bottom:8px;">New paid order received</h1>
-        <p><strong>Order ID:</strong> ${options.orderId}</p>
-        <p><strong>Customer:</strong> ${options.payload.customerName}</p>
-        <p><strong>Email:</strong> ${options.payload.email}</p>
-        <p><strong>Phone:</strong> ${options.payload.phone}</p>
+        <p><strong>Order ID:</strong> ${escapeHtml(options.orderId)}</p>
+        <p><strong>Customer:</strong> ${escapeHtml(options.payload.customerName)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(options.payload.email)}</p>
+        <p><strong>Phone:</strong> ${escapeHtml(options.payload.phone)}</p>
         <p><strong>First-order bonus:</strong> ${
           options.payload.firstOrderCookieIncluded
             ? "Free cookie included"
             : "Not included"
         }</p>
         <table style="margin:16px 0;border-collapse:collapse;">${renderSummaryRows(options.payload)}</table>
-        <p><strong>Pickup request:</strong> ${options.payload.pickupDate}</p>
-        <p><strong>Special notes:</strong> ${options.payload.notes || "None"}</p>
+        <p><strong>Pickup request:</strong> ${escapeHtml(options.payload.pickupDate)}</p>
+        <p><strong>Special notes:</strong> ${escapeHtml(options.payload.notes || "None")}</p>
         ${
           options.imageUrls.length > 0
             ? `<p><strong>Reference images:</strong></p><ul>${options.imageUrls
-                .map((url) => `<li><a href="${url}">${url}</a></li>`)
+                .map((url) => `<li><a href="${escapeHtml(url)}">${escapeHtml(url)}</a></li>`)
                 .join("")}</ul>`
             : "<p><strong>Reference images:</strong> None</p>"
         }
@@ -113,11 +122,11 @@ export async function sendContactInquiryEmail(options: {
     html: `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#2e241d;">
         <h1>New enquiry</h1>
-        <p><strong>Name:</strong> ${options.name}</p>
-        <p><strong>Email:</strong> ${options.email}</p>
-        <p><strong>Phone:</strong> ${options.phone || "Not provided"}</p>
+        <p><strong>Name:</strong> ${escapeHtml(options.name)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(options.email)}</p>
+        <p><strong>Phone:</strong> ${escapeHtml(options.phone || "Not provided")}</p>
         <p><strong>Message:</strong></p>
-        <p>${options.message.replace(/\n/g, "<br />")}</p>
+        <p>${escapeHtml(options.message).replace(/\n/g, "<br />")}</p>
       </div>
     `,
     attachments: options.attachment

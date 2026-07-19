@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { isAdminEmail } from "@/lib/auth-helpers";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 
@@ -51,7 +50,7 @@ export async function POST(request: Request) {
       name: parsed.data.name,
       email,
       passwordHash,
-      role: isAdminEmail(email) ? "ADMIN" : "USER",
+      role: "USER",
     },
   });
 

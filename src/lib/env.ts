@@ -1,9 +1,21 @@
+function getAuthSecret() {
+  if (process.env.AUTH_SECRET) {
+    return process.env.AUTH_SECRET;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("AUTH_SECRET must be configured in production.");
+  }
+
+  return "development-secret";
+}
+
 const env = {
   adminEmails: (process.env.ADMIN_EMAILS ?? "")
     .split(",")
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean),
-  authSecret: process.env.AUTH_SECRET ?? "development-secret",
+  authSecret: getAuthSecret(),
   hasDatabase: Boolean(process.env.DATABASE_URL),
   hasResend: Boolean(process.env.RESEND_API_KEY),
   hasSiteUrl: Boolean(process.env.NEXT_PUBLIC_SITE_URL),
