@@ -14,15 +14,33 @@ export const colourOptions = [
   "Lilac",
   "Butter Yellow",
   "Terracotta",
-  "Other",
+  "Custom",
 ] as const;
 
-export const themeOptions = [
-  "Birthday Party",
-  "Garden Picnic",
-  "Princess",
-  "Sports",
-  "Minimal Luxe",
+export const cupcakeCreamColourOptions = [
+  "Blue",
+  "Yellow",
+  "Pink",
+  "Purple",
+  "Custom",
+] as const;
+
+export const headCakeColourOptions = [
+  "Blue&Yellow",
+  "Blue&White",
+  "Blue&Pink",
+  "Yellow&White",
+  "Pink&Yellow",
+  "Pink&Purple",
+  "Custom",
+] as const;
+
+export const cookieMainColourOptions = [
+  "Blue",
+  "Yellow",
+  "Black",
+  "Pink",
+  "Purple",
   "Other",
 ] as const;
 
@@ -126,9 +144,9 @@ export const productCatalog = [
   {
     type: "themed-cookie" as const,
     slug: "themed-cookie",
-    title: "Themed Cookie Set",
+    title: "Cookies",
     description:
-      "A matching cookie party set with custom theme, colour story, name plaque, and age details.",
+      "Goat milk iced birthday cookies and name cookies for sweet pet celebrations.",
   },
 ] as const;
 
@@ -223,9 +241,11 @@ const fullBodySelectionSchema = z.object({
 
 const cookieSelectionSchema = z.object({
   productType: z.literal("themed-cookie"),
+  cookieType: z.enum(["birthday-set", "name-cookie"]),
   flavor: z.enum(["chicken-cheese", "oat-peanut-butter"]),
-  theme: z.string().min(1),
-  colourPalette: z.string().min(1),
+  quantity: z.coerce.number().int().min(5).optional().default(5),
+  gender: z.string().min(1),
+  mainColor: z.enum(cookieMainColourOptions),
   petName: z.string().min(1),
   turningAge: z.string().min(1),
 });
@@ -238,7 +258,7 @@ export const orderSelectionSchema = z.discriminatedUnion("productType", [
 ]);
 
 export const orderPayloadSchema = commonCustomerSchema.extend({
-  imageUploads: z.array(imageReferenceSchema).max(1).default([]),
+  imageUploads: z.array(imageReferenceSchema).max(5).default([]),
   selection: orderSelectionSchema,
 });
 
@@ -263,6 +283,10 @@ export function calculateOrderAmount(selection: OrderSelection) {
         selection.addOns.reduce((total, key) => total + addOnCatalog[key].price, 0)
       );
     case "themed-cookie":
+      if (selection.cookieType === "name-cookie") {
+        return selection.quantity * 5;
+      }
+
       return 49;
   }
 }
@@ -314,18 +338,27 @@ export function buildOrderSummary(selection: OrderSelection) {
       ];
     case "themed-cookie":
       return [
-        { label: "Product", value: "Themed Cookie Set" },
+        {
+          label: "Product",
+          value:
+            selection.cookieType === "birthday-set"
+              ? "Birthday Cookies Set"
+              : "Name Cookies",
+        },
+        ...(selection.cookieType === "name-cookie"
+          ? [{ label: "Quantity", value: String(selection.quantity) }]
+          : []),
         {
           label: "Flavor",
           value:
             selection.flavor === "chicken-cheese"
-              ? "Chicken cheese"
-              : "Oat peanut butter",
+              ? "Chicken & Cheese"
+              : "Oat & Peanut Butter",
         },
-        { label: "Theme", value: selection.theme },
-        { label: "Colour palette", value: selection.colourPalette },
         { label: "Pet name", value: selection.petName },
+        { label: "Gender", value: selection.gender },
         { label: "Turning age", value: selection.turningAge },
+        { label: "Main color", value: selection.mainColor },
       ];
   }
 }

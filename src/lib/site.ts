@@ -4,8 +4,8 @@ export const siteConfig = {
     "Cute custom pet cakes, 3D cupcake toppers, and themed cookies crafted for unforgettable pet birthdays.",
   shortDescription:
     "Custom pet cakes and birthday treats made with love in Australia.",
-  contactEmail: "hello@happyscake.au",
-  phone: "+61 400 123 456",
+  contactEmail: "info@happyscake.com",
+  phone: "0472707510",
   pickupSuburb: "Brisbane, QLD",
   socials: [
     {
@@ -26,7 +26,7 @@ export const siteConfig = {
   ],
   nav: [
     { href: "/", label: "Home" },
-    { href: "/order", label: "Order" },
+    { href: "/order/head-cake", label: "Shop Cakes" },
     { href: "/gallery", label: "Gallery" },
     { href: "/contact", label: "Contact" },
     { href: "/faq", label: "FAQ" },

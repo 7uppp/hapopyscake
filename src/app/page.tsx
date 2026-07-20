@@ -14,44 +14,6 @@ import { GalleryCarousel } from "@/components/home/gallery-carousel";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { getCustomerGalleryItems } from "@/lib/data";
 
-const heroSlides = [
-  {
-    id: "happy-cake-main",
-    imageUrl: "/Banner/home-banner.png",
-    imageAlt: "Happy's Cake custom pet birthday cake banner",
-  },
-  {
-    id: "happy-cake-banner-1",
-    imageUrl: "/Banner/1.jpg",
-    imageAlt: "Happy's Cake pet cake banner 1",
-  },
-  {
-    id: "happy-cake-banner-2",
-    imageUrl: "/Banner/2.jpg",
-    imageAlt: "Happy's Cake pet cake banner 2",
-  },
-  {
-    id: "happy-cake-banner-3",
-    imageUrl: "/Banner/3.jpg",
-    imageAlt: "Happy's Cake pet cake banner 3",
-  },
-  {
-    id: "happy-cake-banner-4",
-    imageUrl: "/Banner/4.jpg",
-    imageAlt: "Happy's Cake pet cake banner 4",
-  },
-  {
-    id: "happy-cake-banner-5",
-    imageUrl: "/Banner/5.jpg",
-    imageAlt: "Happy's Cake pet cake banner 5",
-  },
-  {
-    id: "happy-cake-banner-6",
-    imageUrl: "/Banner/6.jpg",
-    imageAlt: "Happy's Cake pet cake banner 6",
-  },
-] as const;
-
 const featureCards = [
   {
     title: "Custom designed",
@@ -114,11 +76,11 @@ const productCards: ReadonlyArray<{
     href: "/order/full-body-cake",
   },
   {
-    title: "themed Cookie",
+    title: "Cookies",
     price: "From $49",
     bg: "bg-[#ffd1e4]",
     imageUrl: "/cookies.jpg",
-    imageAlt: "themed Cookie product card",
+    imageAlt: "Cookies product card",
     href: "/order/themed-cookie",
   },
 ] as const;
@@ -134,33 +96,36 @@ export default async function HomePage() {
   const galleryPreview = await getCustomerGalleryItems();
 
   return (
-    <div className="bg-[var(--color-cream)] pb-10">
+    <div className="bg-[var(--color-cream)] pb-2 md:pb-10">
       <MarketingPopup enabled={!session?.user} />
 
-      <HeroCarousel slides={heroSlides} />
+      <HeroCarousel
+        imageUrl="/Banner/home-banner.png"
+        imageAlt="Happy's Cake custom pet birthday cake banner"
+      />
 
       <section className="container-shell pt-8">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-4 gap-2 md:gap-4">
           {featureCards.map((item) => (
               <article
                 key={item.title}
-                className="cute-card min-h-[112px] rounded-[24px] px-6 py-5"
+                className="cute-card min-h-[92px] rounded-[18px] px-1.5 py-3 md:min-h-[112px] md:rounded-[24px] md:px-6 md:py-5"
               >
-                <div className="flex items-center gap-5">
-                  <div className="relative flex size-[104px] shrink-0 items-center justify-center">
+                <div className="flex flex-col items-center gap-1.5 text-center md:flex-row md:gap-5 md:text-left">
+                  <div className="relative flex size-[44px] shrink-0 items-center justify-center sm:size-[58px] md:size-[104px]">
                     <Image
                       src={item.iconUrl}
                       alt={item.iconAlt}
                       width={100}
                       height={100}
-                      className="size-[100px] object-contain"
+                      className="size-[42px] object-contain sm:size-[56px] md:size-[100px]"
                     />
                   </div>
                   <div>
-                    <h2 className="font-black uppercase leading-tight text-[var(--color-cocoa)]">
+                    <h2 className="text-[0.56rem] font-black uppercase leading-tight text-[var(--color-cocoa)] sm:text-[0.68rem] md:text-base">
                       {item.title}
                     </h2>
-                    <p className="mt-1 text-sm leading-5 text-[var(--color-cocoa)]">
+                    <p className="mt-1 text-[0.55rem] leading-3 text-[var(--color-cocoa)] sm:text-[0.65rem] sm:leading-4 md:text-sm md:leading-5">
                       {item.description}
                     </p>
                   </div>
@@ -176,23 +141,23 @@ export default async function HomePage() {
         <div className="absolute right-0 top-14 text-2xl text-[#ffcc3f]">✦</div>
 
         <div className="mb-7 flex items-center justify-center md:justify-between">
-          <h2 className="section-title text-center text-[2.8rem] font-black text-[var(--color-cocoa)] md:text-[3.4rem]">
+          <h2 className="section-title text-center text-[2.05rem] font-black leading-tight text-[var(--color-cocoa)] sm:text-[2.5rem] md:text-[3.4rem]">
             Our Paw-some Cake Collection
           </h2>
           <Link
-            href="/order"
+            href="/order/head-cake"
             className="nav-candy-button nav-candy-button-active hidden h-14 items-center gap-2 px-8 text-sm font-black uppercase tracking-[0.04em] md:flex"
           >
             View all <PawPrint size={17} />
           </Link>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:gap-6 lg:grid-cols-4">
           {productCards.map((item) => (
             <Link
               key={item.title}
               href={item.href}
-              className="cute-card group relative block overflow-hidden rounded-[28px] p-3 transition hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-[var(--color-berry)]/30"
+              className="cute-card group relative block overflow-hidden rounded-[22px] p-2 transition hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-[var(--color-berry)]/30 md:rounded-[28px] md:p-3"
               aria-label={`Order ${item.title}`}
             >
               {item.badge ? (
@@ -201,7 +166,7 @@ export default async function HomePage() {
                 </div>
               ) : null}
 
-              <div className={`relative aspect-[1.02] overflow-hidden rounded-[22px] ${item.bg}`}>
+              <div className={`relative aspect-[1.02] overflow-hidden rounded-[18px] md:rounded-[22px] ${item.bg}`}>
                 <Image
                   src={item.imageUrl}
                   alt={item.imageAlt}
@@ -211,11 +176,11 @@ export default async function HomePage() {
                 />
               </div>
 
-              <div className="px-3 pb-4 pt-4 text-center">
-                <h3 className="section-title text-2xl font-black text-[var(--color-cocoa)]">
+              <div className="px-1 pb-3 pt-3 text-center md:px-3 md:pb-4 md:pt-4">
+                <h3 className="section-title text-base font-black text-[var(--color-cocoa)] sm:text-lg md:text-2xl">
                   {item.title}
                 </h3>
-                <p className="mt-3 text-2xl font-black text-[var(--color-berry)]">
+                <p className="mt-2 text-lg font-black text-[var(--color-berry)] md:mt-3 md:text-2xl">
                   {item.price}
                 </p>
               </div>
@@ -242,7 +207,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="container-shell pt-9">
+      <section className="container-shell hidden pt-9 md:block">
         <div className="relative overflow-hidden rounded-[28px] bg-[#ffdce9] px-8 py-7">
           <div className="absolute inset-x-0 bottom-[-22px] flex">
             {Array.from({ length: 18 }).map((_, index) => (

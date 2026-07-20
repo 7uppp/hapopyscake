@@ -1,74 +1,35 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-type HeroSlide = {
-  id: string;
+type HeroBannerProps = {
   imageUrl: string;
   imageAlt: string;
 };
 
-type HeroCarouselProps = {
-  slides: readonly HeroSlide[];
-};
-
-export function HeroCarousel({ slides }: HeroCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const currentSlide = slides[currentIndex] ?? slides[0];
-  const isMainBanner = currentSlide?.id === "happy-cake-main";
-
-  useEffect(() => {
-    if (slides.length <= 1) {
-      return;
-    }
-
-    const timer = window.setInterval(() => {
-      setCurrentIndex((current) => (current + 1) % slides.length);
-    }, 5000);
-
-    return () => window.clearInterval(timer);
-  }, [slides.length]);
-
+export function HeroCarousel({ imageUrl, imageAlt }: HeroBannerProps) {
   return (
     <section className="container-shell pt-14">
       <div className="relative aspect-[984/480] overflow-hidden rounded-[44px] bg-[#ffe680] shadow-[0_16px_30px_rgba(123,68,40,0.12)]">
         <Image
-          key={currentSlide?.id}
-          src={currentSlide?.imageUrl ?? "/Banner/home-banner.png"}
-          alt={currentSlide?.imageAlt ?? "Happy's Cake birthday cake banner"}
+          src={imageUrl}
+          alt={imageAlt}
           fill
           preload
           unoptimized
           sizes="min(1240px, calc(100vw - 2rem))"
-          className={`object-cover ${isMainBanner ? "scale-[1.035]" : ""}`}
+          className="object-cover scale-[1.035]"
         />
 
         <Link
-          href="/order"
+          href="/order/head-cake"
           aria-label="Shop cakes"
           className="absolute left-[5%] top-[62%] h-[10%] w-[18%] rounded-full"
         />
         <Link
-          href="/order"
+          href="/order/head-cake"
           aria-label="Custom order"
           className="absolute left-[24%] top-[62%] h-[10%] w-[18%] rounded-full"
         />
-
-        <div className="absolute bottom-[2.8%] left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full bg-white/75 px-3 py-2">
-          {slides.map((slide, index) => (
-            <button
-              key={slide.id}
-              type="button"
-              onClick={() => setCurrentIndex(index)}
-              aria-label={`Show banner ${index + 1}`}
-              className={`h-3 rounded-full transition ${
-                currentIndex === index ? "w-8 bg-[var(--color-berry)]" : "w-3 bg-white"
-              }`}
-            />
-          ))}
-        </div>
       </div>
     </section>
   );

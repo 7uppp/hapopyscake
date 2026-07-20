@@ -72,25 +72,12 @@ export default async function ProductOrderPage({ params }: ProductOrderPageProps
   const productPreviewImages = await getProductGalleryPreview(product.type, 6);
 
   return (
-    <div className="container-shell py-16">
-      <div className="mb-10 max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--color-cocoa)]">
-          Order online
-        </p>
-        <h1 className="section-title mt-3 text-5xl text-[var(--color-ink)]">
-          Reserve your {product.title}
-        </h1>
-        <p className="mt-4 text-lg leading-8 text-[var(--color-cocoa)]">
-          Browse a few examples, customize the details, upload a pet reference
-          photo, and continue to secure Stripe checkout.
-        </p>
-      </div>
+    <div className="container-shell py-10 md:py-16">
       <OrderForm
         session={session}
         firstOrderCookieEligible={firstOrderCookieEligible}
         initialProductType={product.type}
         productPreviewImages={productPreviewImages}
-        lockProductSelection
       />
     </div>
   );

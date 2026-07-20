@@ -5,6 +5,7 @@ import { Menu } from "lucide-react";
 import { auth } from "@/auth";
 import { AccountMenu } from "@/components/layout/account-menu";
 import { SignOutButton } from "@/components/ui/sign-out-button";
+import { productCatalog } from "@/lib/products";
 
 export async function Header() {
   const session = await auth();
@@ -16,10 +17,13 @@ export async function Header() {
     "Friend";
   const navItems = [
     { href: "/", label: "Home", active: true },
-    { href: "/order", label: "Shop cakes" },
     { href: "/gallery", label: "Gallery" },
     { href: "/contact", label: "Contact" },
   ];
+  const productNavItems = productCatalog.map((product) => ({
+    href: `/order/${product.slug}`,
+    label: product.title,
+  }));
 
   return (
     <header className="relative z-40 bg-[var(--color-cream)]">
@@ -49,15 +53,41 @@ export async function Header() {
 
         <nav className="hidden w-full items-center justify-end pt-[72px] pr-2 max-xl:pt-[54px] max-xl:pr-1 lg:flex">
           <div className="flex items-center justify-center gap-14 max-xl:gap-10">
-            {navItems.map((item) => (
+            <Link
+              href="/"
+              className="nav-candy-button nav-candy-button-active flex h-[44px] min-w-[92px] items-center justify-center whitespace-nowrap px-4 text-center font-display text-[11px] font-black uppercase leading-none tracking-[0.02em] text-white transition hover:-translate-y-0.5 max-xl:h-10 max-xl:min-w-[84px] max-xl:px-3 max-xl:text-[10px]"
+            >
+              <span className="relative z-10">Home</span>
+            </Link>
+
+            <div className="group relative">
+              <Link
+                href="/order/head-cake"
+                className="nav-candy-button nav-candy-button-soft flex h-[44px] min-w-[92px] items-center justify-center whitespace-nowrap px-4 text-center font-display text-[11px] font-black uppercase leading-none tracking-[0.02em] text-[var(--color-cocoa)] transition hover:-translate-y-0.5 max-xl:h-10 max-xl:min-w-[84px] max-xl:px-3 max-xl:text-[10px]"
+              >
+                <span className="relative z-10">Shop cakes</span>
+              </Link>
+              <div className="absolute left-1/2 top-full z-40 h-4 w-56 -translate-x-1/2" />
+              <div className="invisible absolute left-1/2 top-[calc(100%+4px)] z-50 w-56 -translate-x-1/2 rounded-[24px] border-2 border-white bg-[#fff8eb] p-3 opacity-0 shadow-[0_18px_34px_rgba(123,68,40,0.18)] transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                <div className="space-y-2">
+                  {productNavItems.map((product) => (
+                    <Link
+                      key={product.href}
+                      href={product.href}
+                      className="block rounded-full bg-white px-4 py-2 text-center font-display text-xs font-black text-[var(--color-cocoa)] transition hover:bg-[#ffdce9] hover:text-[var(--color-berry)]"
+                    >
+                      {product.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {navItems.slice(1).map((item) => (
               <Link
                 key={`${item.href}-${item.label}`}
                 href={item.href}
-                className={`nav-candy-button flex h-[44px] min-w-[92px] items-center justify-center whitespace-nowrap px-4 text-center font-display text-[11px] font-black uppercase leading-none tracking-[0.02em] transition hover:-translate-y-0.5 max-xl:h-10 max-xl:min-w-[84px] max-xl:px-3 max-xl:text-[10px] ${
-                  item.active
-                    ? "nav-candy-button-active text-white"
-                    : "nav-candy-button-soft text-[var(--color-cocoa)]"
-                }`}
+                className="nav-candy-button nav-candy-button-soft flex h-[44px] min-w-[92px] items-center justify-center whitespace-nowrap px-4 text-center font-display text-[11px] font-black uppercase leading-none tracking-[0.02em] text-[var(--color-cocoa)] transition hover:-translate-y-0.5 max-xl:h-10 max-xl:min-w-[84px] max-xl:px-3 max-xl:text-[10px]"
               >
                 <span className="relative z-10">{item.label}</span>
               </Link>
@@ -86,7 +116,29 @@ export async function Header() {
             </summary>
             <div className="absolute right-0 top-[calc(100%+14px)] w-56 rounded-[28px] border-2 border-white bg-[var(--color-cream)] p-4 shadow-[0_18px_34px_rgba(123,68,40,0.18)]">
               <div className="flex flex-col gap-3">
-                {navItems.map((item) => (
+                <Link
+                  href="/"
+                  className="rounded-full bg-white px-5 py-3 text-center font-display text-sm font-black uppercase text-[var(--color-cocoa)]"
+                >
+                  Home
+                </Link>
+                <details className="group/shop">
+                  <summary className="cursor-pointer list-none rounded-full bg-white px-5 py-3 text-center font-display text-sm font-black uppercase text-[var(--color-cocoa)] marker:hidden">
+                    Shop cakes
+                  </summary>
+                  <div className="mt-2 space-y-2 rounded-[22px] bg-white/70 p-2">
+                    {productNavItems.map((product) => (
+                      <Link
+                        key={`mobile-product-${product.href}`}
+                        href={product.href}
+                        className="block rounded-full bg-white px-4 py-2 text-center font-display text-xs font-black text-[var(--color-cocoa)]"
+                      >
+                        {product.label}
+                      </Link>
+                    ))}
+                  </div>
+                </details>
+                {navItems.slice(1).map((item) => (
                   <Link
                     key={`mobile-${item.href}-${item.label}`}
                     href={item.href}

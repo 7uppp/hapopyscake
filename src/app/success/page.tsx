@@ -98,7 +98,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
             Back to home
           </Link>
           <Link
-            href="/order"
+            href="/order/head-cake"
             className="rounded-full border border-[var(--color-blush)] bg-white/80 px-6 py-3 font-bold text-[var(--color-berry)] transition hover:bg-white"
           >
             Order another one

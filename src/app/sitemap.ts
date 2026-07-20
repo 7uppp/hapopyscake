@@ -2,7 +2,10 @@ import type { MetadataRoute } from "next";
 
 const routes = [
   "",
-  "/order",
+  "/order/head-cupcake",
+  "/order/head-cake",
+  "/order/full-body-cake",
+  "/order/themed-cookie",
   "/gallery",
   "/contact",
   "/login",
