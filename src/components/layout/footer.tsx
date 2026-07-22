@@ -64,6 +64,10 @@ export function Footer() {
             <SocialQrModal />
           </div>
         </div>
+
+        <p className="mt-4 text-center text-xs font-semibold text-[var(--color-cocoa)]/65 md:mt-8">
+          © 2026 Happy&apos;s Cake Pet Bakery. All rights reserved.
+        </p>
       </div>
     </footer>
   );

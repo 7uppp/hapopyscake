@@ -36,6 +36,27 @@ type ProductPreviewImage = {
   height: number;
 };
 
+function CarouselArrowIcon({ direction }: { direction: "previous" | "next" }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="size-4"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="3"
+      viewBox="0 0 24 24"
+    >
+      {direction === "previous" ? (
+        <path d="m15 18-6-6 6-6" />
+      ) : (
+        <path d="m9 6 6 6-6 6" />
+      )}
+    </svg>
+  );
+}
+
 const defaultSelectionByProduct: Record<ProductType, Record<string, unknown>> = {
   "head-cupcake": {
     productType: "head-cupcake",
@@ -272,18 +293,18 @@ export function OrderForm({
                     <button
                       type="button"
                       onClick={showPreviousImage}
-                      className="absolute left-3 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 font-display text-3xl leading-none text-[var(--color-cocoa)] shadow-lg transition hover:-translate-y-[52%] hover:bg-white"
+                      className="absolute left-3 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[var(--color-cocoa)] shadow-lg transition hover:-translate-y-[52%] hover:bg-white"
                       aria-label="Show previous product image"
                     >
-                      ‹
+                      <CarouselArrowIcon direction="previous" />
                     </button>
                     <button
                       type="button"
                       onClick={showNextImage}
-                      className="absolute right-3 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 font-display text-3xl leading-none text-[var(--color-cocoa)] shadow-lg transition hover:-translate-y-[52%] hover:bg-white"
+                      className="absolute right-3 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-[var(--color-cocoa)] shadow-lg transition hover:-translate-y-[52%] hover:bg-white"
                       aria-label="Show next product image"
                     >
-                      ›
+                      <CarouselArrowIcon direction="next" />
                     </button>
                   </>
                 ) : null}
@@ -342,7 +363,7 @@ export function OrderForm({
               <h1 className="section-title min-w-0 text-xl leading-none text-[var(--color-ink)] md:text-2xl">
                 {headline}
               </h1>
-              <p className="shrink-0 font-display text-xl leading-none text-[var(--color-berry)] md:text-2xl">
+              <p className="price-text shrink-0 text-xl leading-none text-[var(--color-berry)] md:text-2xl">
                 {pricePreview}
               </p>
             </div>
@@ -396,9 +417,9 @@ export function OrderForm({
 
               <details className="group rounded-[22px] border border-[var(--color-blush)] bg-[#fff8fb]">
                 <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 font-display text-xl text-[var(--color-ink)]">
-                  <span className="relative grid size-7 shrink-0 place-items-center rounded-full bg-[var(--color-berry)] text-lg leading-none text-white">
-                    <span className="group-open:hidden">+</span>
-                    <span className="hidden group-open:block">−</span>
+                  <span className="relative size-7 shrink-0 rounded-full bg-[var(--color-berry)] text-lg leading-none text-white">
+                    <span className="accordion-toggle-symbol group-open:hidden">+</span>
+                    <span className="accordion-toggle-symbol hidden group-open:block">−</span>
                   </span>
                   Feeding
                 </summary>
@@ -439,9 +460,9 @@ export function OrderForm({
 
               <details className="group rounded-[22px] border border-[var(--color-blush)] bg-[#fff8fb]">
                 <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 font-display text-xl text-[var(--color-ink)]">
-                  <span className="relative grid size-7 shrink-0 place-items-center rounded-full bg-[var(--color-berry)] text-lg leading-none text-white">
-                    <span className="group-open:hidden">+</span>
-                    <span className="hidden group-open:block">−</span>
+                  <span className="relative size-7 shrink-0 rounded-full bg-[var(--color-berry)] text-lg leading-none text-white">
+                    <span className="accordion-toggle-symbol group-open:hidden">+</span>
+                    <span className="accordion-toggle-symbol hidden group-open:block">−</span>
                   </span>
                   Storage
                 </summary>
@@ -623,7 +644,7 @@ export function OrderForm({
                             <div className="font-bold text-[var(--color-ink)]">
                               {item.label}
                             </div>
-                            <div className="text-sm text-[var(--color-cocoa)]">
+                            <div className="price-text text-sm text-[var(--color-cocoa)]">
                               +{formatCurrency(item.price)}
                             </div>
                           </button>
@@ -671,7 +692,7 @@ export function OrderForm({
                             <span className="font-display text-xl text-[var(--color-ink)]">
                               {option.title}
                             </span>
-                            <span className="font-display text-xl text-[var(--color-berry)]">
+                            <span className="price-text text-xl text-[var(--color-berry)]">
                               {option.price}
                             </span>
                           </div>
@@ -916,7 +937,7 @@ export function OrderForm({
             <button
               type="submit"
               disabled={isPending}
-              className="w-full rounded-full bg-[var(--color-berry)] px-6 py-3.5 font-display text-base font-black uppercase tracking-[0.04em] text-white shadow-lg shadow-pink-300/50 transition hover:-translate-y-0.5 disabled:opacity-60"
+              className="fredoka-text w-full rounded-full bg-[var(--color-berry)] px-6 py-3.5 text-base font-black uppercase tracking-[0.04em] text-white shadow-lg shadow-pink-300/50 transition hover:-translate-y-0.5 disabled:opacity-60"
             >
               {isPending ? "Adding to cart..." : "Add to cart"}
             </button>

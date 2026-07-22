@@ -180,7 +180,7 @@ export default async function HomePage() {
                 <h3 className="section-title text-base font-black text-[var(--color-cocoa)] sm:text-lg md:text-2xl">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-lg font-black text-[var(--color-berry)] md:mt-3 md:text-2xl">
+                <p className="price-text mt-2 text-lg text-[var(--color-berry)] md:mt-3 md:text-2xl">
                   {item.price}
                 </p>
               </div>

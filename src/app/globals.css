@@ -14,8 +14,8 @@
 }
 
 @theme inline {
-  --font-sans: "Segoe UI Rounded", "Comic Sans MS", "Nunito Sans", "Segoe UI", sans-serif;
-  --font-display: "Arial Rounded MT Bold", "Segoe UI Rounded", "Comic Sans MS", "Trebuchet MS", sans-serif;
+  --font-sans: var(--font-body), "Nunito", "Segoe UI", sans-serif;
+  --font-display: var(--font-title), "Arial Rounded MT Bold", "Segoe UI Rounded", sans-serif;
 }
 
 * {
@@ -28,7 +28,7 @@ html {
 
 body {
   color: var(--color-ink);
-  font-family: "Segoe UI Rounded", "Comic Sans MS", "Nunito Sans", "Segoe UI", sans-serif;
+  font-family: var(--font-body), "Nunito", "Segoe UI", sans-serif;
   background: var(--color-cream);
 }
 
@@ -68,8 +68,26 @@ textarea {
 }
 
 .section-title {
-  font-family: "Arial Rounded MT Bold", "Segoe UI Rounded", "Comic Sans MS", "Trebuchet MS", sans-serif;
+  font-family: var(--font-title), "Fredoka", "Arial Rounded MT Bold", "Segoe UI Rounded", sans-serif;
   letter-spacing: 0;
+}
+
+.price-text {
+  font-family: var(--font-body), "Nunito", "Segoe UI", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.fredoka-text {
+  font-family: var(--font-title), "Fredoka", "Arial Rounded MT Bold", "Segoe UI Rounded", sans-serif;
+  letter-spacing: 0;
+}
+
+.accordion-toggle-symbol {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -54%);
 }
 
 .nav-candy-button {
@@ -105,6 +123,25 @@ textarea {
   filter:
     saturate(1.08)
     drop-shadow(0 12px 18px rgba(236, 127, 169, 0.2));
+}
+
+.nav-pill-button {
+  border-radius: 999px;
+  border: 2px solid var(--color-berry);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-berry);
+  font-family: var(--font-menu), "Segoe UI Rounded", sans-serif;
+  box-shadow: 0 8px 18px rgba(236, 127, 169, 0.12);
+}
+
+.nav-pill-button-filled {
+  background: var(--color-berry);
+  color: white;
+  box-shadow: 0 12px 22px rgba(236, 127, 169, 0.28);
+}
+
+.nav-pill-button-soft {
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .nav-cart-button {

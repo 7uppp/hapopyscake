@@ -149,7 +149,7 @@ export function CartCheckoutForm({
         <h1 className="section-title mt-3 text-4xl text-[var(--color-ink)]">
           {product?.title ?? "Happy's Cake order"}
         </h1>
-        <p className="mt-3 font-display text-4xl text-[var(--color-berry)]">
+        <p className="price-text mt-3 text-4xl text-[var(--color-berry)]">
           {amount}
         </p>
 

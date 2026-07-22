@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { SignOutButton } from "@/components/ui/sign-out-button";
+import { PayNowButton } from "@/components/ui/pay-now-button";
 import { requireSession } from "@/lib/auth-helpers";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
@@ -99,10 +100,13 @@ export default async function AccountPage() {
                       <p>{formatDateLabel(order.createdAt)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-[var(--color-berry)]">
+                      <p className="price-text text-[var(--color-berry)]">
                         {formatCurrency(order.amountCents / 100)}
                       </p>
                       <p>{order.status}</p>
+                      {order.status === "PENDING_PAYMENT" ? (
+                        <PayNowButton orderId={order.id} />
+                      ) : null}
                     </div>
                   </div>
                 </article>

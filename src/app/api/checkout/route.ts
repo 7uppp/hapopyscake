@@ -3,11 +3,18 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createCheckoutSession } from "@/lib/stripe";
 import { env } from "@/lib/env";
-import { calculateOrderAmount, orderPayloadSchema } from "@/lib/products";
+import {
+  calculateOrderAmount,
+  orderPayloadSchema,
+  orderSelectionSchema,
+  type OrderPayload,
+} from "@/lib/products";
 import { prisma } from "@/lib/prisma";
-import { parseBrisbaneDateTime } from "@/lib/utils";
+import { formatBrisbaneDateTimeLocal, parseBrisbaneDateTime } from "@/lib/utils";
 
 export const runtime = "nodejs";
+
+const pendingPaymentWindowMs = 24 * 60 * 60 * 1000;
 
 export async function POST(request: Request) {
   if (!env.hasDatabase || !env.hasStripe) {
@@ -18,6 +25,80 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+
+  if (body && typeof body === "object" && typeof body.orderId === "string") {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Please log in to pay this order." },
+        { status: 401 },
+      );
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id: body.orderId },
+    });
+
+    if (!order || order.userId !== session.user.id) {
+      return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    }
+
+    if (order.status !== "PENDING_PAYMENT") {
+      return NextResponse.json(
+        { error: "This order is not waiting for payment." },
+        { status: 400 },
+      );
+    }
+
+    if (Date.now() - order.createdAt.getTime() > pendingPaymentWindowMs) {
+      return NextResponse.json(
+        { error: "This payment link has expired. Please place the order again." },
+        { status: 410 },
+      );
+    }
+
+    const selection = orderSelectionSchema.safeParse(order.configJson);
+
+    if (!selection.success) {
+      return NextResponse.json(
+        { error: "This order can no longer be paid. Please place the order again." },
+        { status: 400 },
+      );
+    }
+
+    const config = order.configJson as { pickupDateBrisbane?: string };
+    const pickupDate = config.pickupDateBrisbane
+      ? config.pickupDateBrisbane
+      : order.pickupDate
+        ? formatBrisbaneDateTimeLocal(order.pickupDate)
+        : "";
+    const payload: OrderPayload = {
+      customerName: order.customerName,
+      email: order.email,
+      phone: order.phone,
+      pickupDate,
+      notes: order.notes ?? "",
+      marketingOptIn: order.marketingOptIn,
+      selection: selection.data,
+      imageUploads: [],
+    };
+    const checkoutSession = await createCheckoutSession({
+      orderId: order.id,
+      payload,
+    });
+
+    await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        amountCents: checkoutSession.amount_total ?? order.amountCents,
+        stripeSessionId: checkoutSession.id,
+      },
+    });
+
+    return NextResponse.json({ checkoutUrl: checkoutSession.url });
+  }
+
   const parsed = orderPayloadSchema.safeParse(body);
 
   if (!parsed.success) {
