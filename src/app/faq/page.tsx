@@ -8,7 +8,7 @@ export default function FaqPage() {
           FAQ
         </p>
         <h1 className="section-title mt-3 text-5xl text-[var(--color-ink)]">
-          Common questions before you place an order
+          Frequently Asked Questions
         </h1>
       </div>
       <div className="mt-10 space-y-4">
@@ -20,7 +20,9 @@ export default function FaqPage() {
             <h2 className="font-display text-2xl text-[var(--color-ink)]">
               {item.question}
             </h2>
-            <p className="mt-3 text-[var(--color-cocoa)]">{item.answer}</p>
+            <p className="mt-3 whitespace-pre-line leading-7 text-[var(--color-cocoa)]">
+              {item.answer}
+            </p>
           </article>
         ))}
       </div>

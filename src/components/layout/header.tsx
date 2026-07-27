@@ -1,10 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Menu } from "lucide-react";
 
 import { auth } from "@/auth";
 import { AccountMenu } from "@/components/layout/account-menu";
-import { SignOutButton } from "@/components/ui/sign-out-button";
+import { MobileMenu } from "@/components/layout/mobile-menu";
 import { productCatalog } from "@/lib/products";
 
 function PawOutlineIcon({ className = "h-4 w-4" }: { className?: string }) {
@@ -61,8 +60,8 @@ export async function Header() {
           <span className="text-xl" aria-hidden="true">🐾</span>
         </Link>
       </div>
-      <div className="container-shell grid grid-cols-[330px_1fr] items-start gap-8 pt-2 pb-1 max-xl:grid-cols-[290px_1fr] max-lg:flex max-lg:min-h-[132px] max-lg:items-center max-lg:justify-between max-lg:gap-4 max-lg:py-3">
-        <Link href="/" className="relative -ml-8 -mb-10 block h-[188px] w-[395px] shrink-0 max-xl:-ml-3 max-xl:h-[150px] max-xl:w-[315px] max-lg:ml-0 max-lg:mb-0 max-lg:h-[112px] max-lg:w-[238px] max-md:h-[92px] max-md:w-[196px]">
+      <div className="container-shell grid grid-cols-[330px_1fr] items-start gap-8 pt-2 pb-1 max-xl:grid-cols-[290px_1fr] max-lg:flex max-lg:min-h-[108px] max-lg:items-center max-lg:justify-between max-lg:gap-4 max-lg:py-2 max-md:min-h-[92px]">
+        <Link href="/" className="relative -ml-8 -mb-10 block h-[188px] w-[395px] shrink-0 max-xl:-ml-3 max-xl:h-[150px] max-xl:w-[315px] max-lg:ml-0 max-lg:mb-0 max-lg:h-[92px] max-lg:w-[196px] max-md:h-[76px] max-md:w-[162px]">
           <Image
             src="/logo.png"
             alt="Happy's Cake logo"
@@ -136,76 +135,13 @@ export async function Header() {
           </div>
         </nav>
 
-        <div className="relative z-50 flex items-center gap-3 lg:hidden">
-          <details className="group relative">
-            <summary className="flex h-12 w-12 cursor-pointer list-none items-center justify-center rounded-full bg-[var(--color-berry)] text-white shadow-[0_10px_18px_rgba(236,127,169,0.28)] marker:hidden">
-              <Menu size={22} />
-            </summary>
-            <div className="absolute right-0 top-[calc(100%+14px)] w-56 rounded-[28px] border-2 border-white bg-[var(--color-cream)] p-4 shadow-[0_18px_34px_rgba(123,68,40,0.18)]">
-              <div className="flex flex-col gap-3">
-                <Link
-                  href="/"
-                  className="nav-pill-button nav-pill-button-filled flex items-center justify-center gap-2 px-5 py-3 text-center font-display text-sm font-black uppercase"
-                >
-                  <span>Home</span>
-                  <PawOutlineIcon className="h-5 w-5 text-white" />
-                </Link>
-                <details className="group/shop">
-                  <summary className="nav-pill-button nav-pill-button-soft flex cursor-pointer list-none items-center justify-center gap-2 px-5 py-3 text-center font-display text-sm font-black uppercase marker:hidden">
-                    <span>Shop cakes</span>
-                    <PawOutlineIcon className="h-5 w-5 text-[var(--color-berry)]" />
-                  </summary>
-                  <div className="mt-3 space-y-3 rounded-[22px] bg-white/70 p-3">
-                    {productNavItems.map((product) => (
-                      <Link
-                        key={`mobile-product-${product.href}`}
-                        href={product.href}
-                        className="nav-pill-button nav-pill-button-soft flex items-center justify-center gap-2 rounded-full border-2 border-[var(--color-berry)] bg-white px-4 py-2.5 text-center font-display text-xs font-black uppercase text-[var(--color-berry)] shadow-none"
-                      >
-                        <span>{product.label}</span>
-                        <PawOutlineIcon className="h-4 w-4 text-[var(--color-berry)]" />
-                      </Link>
-                    ))}
-                  </div>
-                </details>
-                {navItems.slice(1).map((item) => (
-                  <Link
-                    key={`mobile-${item.href}-${item.label}`}
-                    href={item.href}
-                    className="nav-pill-button nav-pill-button-soft flex items-center justify-center gap-2 px-5 py-3 text-center font-display text-sm font-black uppercase"
-                  >
-                    <span>{item.label}</span>
-                    <PawOutlineIcon className="h-5 w-5 text-[var(--color-berry)]" />
-                  </Link>
-                ))}
-                {session?.user ? (
-                  <>
-                    <Link
-                      href={accountHref}
-                      className="rounded-[22px] bg-white px-5 py-3 text-center text-[var(--color-cocoa)]"
-                    >
-                      <span className="block font-display text-sm font-black text-[var(--color-berry)]">
-                        Hi, {displayName}
-                      </span>
-                      <span className="mt-1 block text-xs font-bold uppercase">
-                        {accountLabel}
-                      </span>
-                    </Link>
-                    <SignOutButton />
-                  </>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="nav-pill-button nav-pill-button-soft flex items-center justify-center gap-2 px-5 py-3 text-center font-display text-sm font-black uppercase"
-                  >
-                    <span>Login</span>
-                    <PawOutlineIcon className="h-5 w-5 text-[var(--color-berry)]" />
-                  </Link>
-                )}
-              </div>
-            </div>
-          </details>
-        </div>
+        <MobileMenu
+          accountHref={accountHref}
+          accountLabel={accountLabel}
+          isSignedIn={Boolean(session?.user)}
+          navItems={navItems}
+          productNavItems={productNavItems}
+        />
       </div>
     </header>
   );

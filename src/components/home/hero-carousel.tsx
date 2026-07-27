@@ -8,7 +8,7 @@ type HeroBannerProps = {
 
 export function HeroCarousel({ imageUrl, imageAlt }: HeroBannerProps) {
   return (
-    <section className="container-shell pt-14">
+    <section className="container-shell pt-4 md:pt-14">
       <div className="relative aspect-[984/480] overflow-hidden rounded-[44px] bg-[#ffe680] shadow-[0_16px_30px_rgba(123,68,40,0.12)]">
         <Image
           src={imageUrl}

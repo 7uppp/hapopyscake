@@ -41,7 +41,7 @@ export const cookieMainColourOptions = [
   "Black",
   "Pink",
   "Purple",
-  "Other",
+  "Custom",
 ] as const;
 
 export const flavorCatalog = {
@@ -245,7 +245,7 @@ const cookieSelectionSchema = z.object({
   flavor: z.enum(["chicken-cheese", "oat-peanut-butter"]),
   quantity: z.coerce.number().int().min(5).optional().default(5),
   gender: z.string().min(1),
-  mainColor: z.enum(cookieMainColourOptions),
+  mainColor: z.string().min(1),
   petName: z.string().min(1),
   turningAge: z.string().min(1),
 });

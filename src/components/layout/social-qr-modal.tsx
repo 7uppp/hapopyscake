@@ -9,7 +9,7 @@ const socialItems = [
   {
     id: "instagram",
     label: "Instagram",
-    qrSrc: "/Social/ins_barcode.jpg",
+    qrSrc: "/Social/ins_barcode.png",
     iconSrc: "/Social/ins.png",
     iconAlt: "Instagram",
     pageUrl:
@@ -53,6 +53,7 @@ export function SocialQrModal() {
               alt={social.iconAlt}
               fill
               sizes="48px"
+              unoptimized
               className="object-contain"
             />
           </button>
@@ -94,6 +95,7 @@ export function SocialQrModal() {
                     alt={`${activeSocial.label} QR code`}
                     width={420}
                     height={420}
+                    unoptimized
                     className="max-h-full max-w-full rounded-[18px] object-contain"
                   />
                 </div>

@@ -62,7 +62,7 @@ const productCards: ReadonlyArray<{
     title: "3D head cake",
     price: "From $84",
     bg: "bg-[#ffd3b6]",
-    imageUrl: "/3d-head.jpg?v=20260717-1",
+    imageUrl: "/cakes/3D%20head/T49.jpg",
     imageAlt: "3D head cake product card",
     href: "/order/head-cake",
   },
@@ -140,16 +140,10 @@ export default async function HomePage() {
         <div className="absolute left-16 top-2 text-4xl text-[var(--color-berry)]">♥</div>
         <div className="absolute right-0 top-14 text-2xl text-[#ffcc3f]">✦</div>
 
-        <div className="mb-7 flex items-center justify-center md:justify-between">
+        <div className="mb-7 flex items-center justify-center">
           <h2 className="section-title text-center text-[2.05rem] font-black leading-tight text-[var(--color-cocoa)] sm:text-[2.5rem] md:text-[3.4rem]">
             Our Paw-some Cake Collection
           </h2>
-          <Link
-            href="/order/head-cake"
-            className="nav-candy-button nav-candy-button-active hidden h-14 items-center gap-2 px-8 text-sm font-black uppercase tracking-[0.04em] md:flex"
-          >
-            View all <PawPrint size={17} />
-          </Link>
         </div>
 
         <div className="grid grid-cols-2 gap-3 md:gap-6 lg:grid-cols-4">
@@ -161,8 +155,9 @@ export default async function HomePage() {
               aria-label={`Order ${item.title}`}
             >
               {item.badge ? (
-                <div className="absolute left-3 top-3 z-20 rounded-50 bg-[var(--color-berry)] px-4 py-3 text-center text-xs font-black uppercase leading-tight text-white">
-                  Best<br />seller
+                <div className="absolute left-0 top-0 z-20 rounded-br-[18px] bg-[var(--color-berry)] px-3 py-2 text-center text-[0.55rem] font-black uppercase leading-none text-white shadow-sm md:rounded-br-[22px] md:px-4 md:py-3 md:text-xs md:leading-tight">
+                  <span className="md:hidden">Best seller</span>
+                  <span className="hidden md:inline">Best<br />seller</span>
                 </div>
               ) : null}
 

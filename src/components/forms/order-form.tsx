@@ -802,9 +802,16 @@ export function OrderForm({
                           Main Color
                         </label>
                         <select
-                          value={String(selection.mainColor ?? "Blue")}
+                          value={
+                            cookieMainColourOptions.includes(selection.mainColor as never)
+                              ? String(selection.mainColor)
+                              : "Custom"
+                          }
                           onChange={(event) =>
-                            onFieldChange("mainColor", event.target.value)
+                            onFieldChange(
+                              "mainColor",
+                              event.target.value === "Custom" ? "" : event.target.value,
+                            )
                           }
                           className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-2.5 shadow-sm"
                         >
@@ -814,6 +821,19 @@ export function OrderForm({
                             </option>
                           ))}
                         </select>
+                        {!cookieMainColourOptions.includes(
+                          selection.mainColor as never,
+                        ) ? (
+                          <input
+                            type="text"
+                            value={String(selection.mainColor ?? "")}
+                            onChange={(event) =>
+                              onFieldChange("mainColor", event.target.value)
+                            }
+                            className="mt-3 w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-2.5 shadow-sm"
+                            placeholder="Custom colour"
+                          />
+                        ) : null}
                       </div>
                     </>
                   ) : null}

@@ -19,12 +19,6 @@ export type GalleryItemData = {
 };
 
 const customerGalleryFolders = [{ folder: "Happy paws", category: "Happy Paws" }] as const;
-const fixedCakeGalleryFolders = [
-  { folder: "cakes/3D head", category: "3D Head Cakes" },
-  { folder: "cakes/3D full body", category: "3D Full Body Cakes" },
-  { folder: "cakes/3D head cupcake", category: "3D Head Cupcakes" },
-  { folder: "cakes/cookies", category: "Cookies" },
-] as const;
 const productGalleryFolders: Record<
   ProductType,
   { folder: string; category: string }
@@ -149,14 +143,7 @@ async function getFallbackGalleryItems() {
 }
 
 export async function getGalleryItems() {
-  const customerItems = await getCustomerGalleryItems();
-
-  try {
-    const fixedCakeItems = await getLocalGalleryItems(fixedCakeGalleryFolders);
-    return [...customerItems, ...fixedCakeItems];
-  } catch {
-    return customerItems;
-  }
+  return getCustomerGalleryItems();
 }
 
 export async function getProductGalleryPreview(productType: ProductType, limit = 6) {
