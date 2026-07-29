@@ -15,6 +15,15 @@ export const metadata: Metadata = buildSeoMetadata({
   noIndex: true,
 });
 
+type RecentPaidOrder = {
+  id: string;
+  email: string;
+  createdAt: Date;
+  images: Array<{
+    path: string;
+  }>;
+};
+
 export default async function AdminMarketingPage() {
   await requireAdminSession();
 
@@ -31,7 +40,7 @@ export default async function AdminMarketingPage() {
       where: { subscribed: true },
     });
 
-    const recentOrders = await prisma.order.findMany({
+    const recentOrders: RecentPaidOrder[] = await prisma.order.findMany({
       where: {
         status: "PAID",
         images: { some: {} },
