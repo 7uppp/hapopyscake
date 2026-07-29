@@ -3,6 +3,7 @@ import { Fredoka, Nunito, Outfit } from "next/font/google";
 
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
+import { defaultOgImage, siteUrl } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -25,12 +26,15 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteConfig.name} | Custom Pet Birthday Cakes`,
+    default: `${siteConfig.name} | Custom Pet Birthday Cakes Brisbane`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [
       {
@@ -41,12 +45,26 @@ export const metadata: Metadata = {
     shortcut: "/favicon.png",
   },
   openGraph: {
-    title: siteConfig.name,
+    title: `${siteConfig.name} | Custom Pet Birthday Cakes Brisbane`,
     description: siteConfig.description,
     siteName: siteConfig.name,
-    url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    url: "/",
     locale: "en_AU",
     type: "website",
+    images: [
+      {
+        url: defaultOgImage,
+        width: 1200,
+        height: 630,
+        alt: "Happy's Cake custom pet birthday cake banner",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} | Custom Pet Birthday Cakes Brisbane`,
+    description: siteConfig.description,
+    images: [defaultOgImage],
   },
 };
 

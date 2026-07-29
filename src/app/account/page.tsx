@@ -5,11 +5,15 @@ import { PayNowButton } from "@/components/ui/pay-now-button";
 import { requireSession } from "@/lib/auth-helpers";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+import { buildSeoMetadata } from "@/lib/seo";
 import { formatCurrency, formatDateLabel } from "@/lib/utils";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildSeoMetadata({
   title: "Account",
-};
+  description: "View your private Happy's Cake account and order history.",
+  path: "/account",
+  noIndex: true,
+});
 
 export default async function AccountPage() {
   const session = await requireSession();

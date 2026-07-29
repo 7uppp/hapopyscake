@@ -1,4 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+import { buildSeoMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildSeoMetadata({
+  title: "Email Preferences",
+  description: "Manage your private Happy's Cake email preferences.",
+  path: "/unsubscribe",
+  noIndex: true,
+});
 
 type UnsubscribePageProps = PageProps<"/unsubscribe">;
 

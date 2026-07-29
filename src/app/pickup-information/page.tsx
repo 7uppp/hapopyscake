@@ -1,4 +1,14 @@
+import type { Metadata } from "next";
+
 import { LegalPage } from "@/app/_components/legal-page";
+import { buildSeoMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildSeoMetadata({
+  title: "Pickup Information",
+  description:
+    "Find Happy's Cake pickup information for custom pet cake orders in Hillcrest, Brisbane.",
+  path: "/pickup-information",
+});
 
 export default function PickupInformationPage() {
   return (

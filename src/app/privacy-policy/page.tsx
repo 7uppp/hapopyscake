@@ -1,4 +1,14 @@
+import type { Metadata } from "next";
+
 import { LegalPage } from "@/app/_components/legal-page";
+import { buildSeoMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildSeoMetadata({
+  title: "Privacy Policy",
+  description:
+    "Read how Happy's Cake handles order details, payment processing, marketing consent, and private reference photos.",
+  path: "/privacy-policy",
+});
 
 export default function PrivacyPolicyPage() {
   return (

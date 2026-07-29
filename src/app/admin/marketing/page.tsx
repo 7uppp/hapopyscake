@@ -4,12 +4,16 @@ import { MarketingForm } from "@/components/forms/marketing-form";
 import { requireAdminSession } from "@/lib/auth-helpers";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+import { buildSeoMetadata } from "@/lib/seo";
 import { createOrderImageSignedUrl } from "@/lib/supabase";
 import { formatDateLabel } from "@/lib/utils";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildSeoMetadata({
   title: "Admin Marketing",
-};
+  description: "Private Happy's Cake marketing dashboard.",
+  path: "/admin/marketing",
+  noIndex: true,
+});
 
 export default async function AdminMarketingPage() {
   await requireAdminSession();

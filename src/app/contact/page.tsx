@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 
 import { ContactForm } from "@/components/forms/contact-form";
+import { buildSeoMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildSeoMetadata({
   title: "Contact",
-  description: "Send custom requests, service questions, or photo inspiration.",
-};
+  description:
+    "Contact Happy's Cake for custom pet birthday cake questions, Brisbane pickup details, and photo inspiration.",
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

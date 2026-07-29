@@ -1,8 +1,35 @@
+import type { Metadata } from "next";
+
+import { buildSeoMetadata, serializeJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
+export const metadata: Metadata = buildSeoMetadata({
+  title: "Frequently Asked Questions",
+  description:
+    "Answers about Happy's Cake pet cake ingredients, storage, pickup, delivery, serving sizes, and custom 3D cake orders.",
+  path: "/faq",
+});
+
 export default function FaqPage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: siteConfig.faq.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
     <div className="container-shell py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
+      />
       <div className="max-w-3xl">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--color-cocoa)]">
           FAQ

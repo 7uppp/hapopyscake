@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 
 import { RegisterForm } from "@/components/forms/register-form";
+import { buildSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildSeoMetadata({
   title: "Register",
-};
+  description: "Create a Happy's Cake account for easier repeat pet cake orders.",
+  path: "/register",
+  noIndex: true,
+});
 
 type RegisterPageProps = {
   searchParams: Promise<{ email?: string | string[] }>;

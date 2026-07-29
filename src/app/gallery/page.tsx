@@ -2,11 +2,14 @@ import type { Metadata } from "next";
 
 import { LazyGalleryGrid } from "@/components/home/lazy-gallery-grid";
 import { getGalleryItems } from "@/lib/data";
+import { buildSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildSeoMetadata({
   title: "Gallery",
-  description: "Browse customer photos and pet birthday cake inspiration.",
-};
+  description:
+    "Browse Happy's Cake customer photos and custom pet birthday cake inspiration from Brisbane celebrations.",
+  path: "/gallery",
+});
 
 export default async function GalleryPage() {
   const items = await getGalleryItems();

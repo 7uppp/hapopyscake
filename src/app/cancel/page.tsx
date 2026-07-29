@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+
+import { buildSeoMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildSeoMetadata({
+  title: "Checkout Cancelled",
+  description: "Return to your Happy's Cake order after cancelling checkout.",
+  path: "/cancel",
+  noIndex: true,
+});
+
 export default function CancelPage() {
   return (
     <div className="container-shell py-16">

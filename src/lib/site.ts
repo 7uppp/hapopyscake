@@ -6,6 +6,8 @@ export const siteConfig = {
     "Custom pet cakes and birthday treats made with love in Australia.",
   contactEmail: "info@happyscake.com",
   phone: "0472707510",
+  phoneInternational: "+61 472 707 510",
+  pickupAddress: "18 Park Close, Hillcrest QLD 4118",
   pickupSuburb: "Brisbane, QLD",
   socials: [
     {

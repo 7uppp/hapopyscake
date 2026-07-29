@@ -13,6 +13,13 @@ import { NewsletterSignupForm } from "@/components/forms/newsletter-signup-form"
 import { GalleryCarousel } from "@/components/home/gallery-carousel";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { getCustomerGalleryItems } from "@/lib/data";
+import {
+  absoluteUrl,
+  defaultOgImage,
+  serializeJsonLd,
+  siteUrl,
+} from "@/lib/seo";
+import { siteConfig } from "@/lib/site";
 
 const featureCards = [
   {
@@ -91,12 +98,49 @@ const trustItems = [
   { label: "Happiness Guaranteed", icon: Smile },
 ] as const;
 
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Bakery",
+  name: siteConfig.name,
+  url: siteUrl,
+  image: absoluteUrl(defaultOgImage),
+  description: siteConfig.description,
+  email: siteConfig.contactEmail,
+  telephone: siteConfig.phoneInternational,
+  priceRange: "$$",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "18 Park Close",
+    addressLocality: "Hillcrest",
+    addressRegion: "QLD",
+    postalCode: "4118",
+    addressCountry: "AU",
+  },
+  areaServed: [
+    {
+      "@type": "City",
+      name: "Brisbane",
+    },
+    {
+      "@type": "AdministrativeArea",
+      name: "Queensland",
+    },
+  ],
+  sameAs: siteConfig.socials.map((social) => social.href),
+};
+
 export default async function HomePage() {
   const session = await auth();
   const galleryPreview = await getCustomerGalleryItems();
 
   return (
     <div className="bg-[var(--color-cream)] pb-2 md:pb-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(localBusinessJsonLd),
+        }}
+      />
       <MarketingPopup enabled={!session?.user} />
 
       <HeroCarousel

@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LoginForm } from "@/components/forms/login-form";
+import { buildSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildSeoMetadata({
   title: "Login",
-};
+  description: "Log in to view your Happy's Cake order history.",
+  path: "/login",
+  noIndex: true,
+});
 
 export default function LoginPage() {
   return (

@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+import { buildSeoMetadata } from "@/lib/seo";
 import { getStripe } from "@/lib/stripe";
+
+export const metadata: Metadata = buildSeoMetadata({
+  title: "Payment Status",
+  description: "Review your Happy's Cake payment confirmation status.",
+  path: "/success",
+  noIndex: true,
+});
 
 type SuccessPageProps = {
   searchParams: Promise<{
