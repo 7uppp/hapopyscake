@@ -1,37 +1,47 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { type FormEvent, useState } from "react";
 
 import { signIn } from "next-auth/react";
 
 export function LoginForm() {
   const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  async function handleSubmit(formData: FormData) {
-    const email = String(formData.get("email") ?? "");
-    const password = String(formData.get("password") ?? "");
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-    setError("");
-
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setError("We couldn't log you in with those details.");
+    if (isPending) {
       return;
     }
 
-    window.location.href = "/account";
+    setError("");
+    setIsPending(true);
+
+    try {
+      const result = await signIn("credentials", {
+        email: email.trim(),
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError("We couldn't log you in with those details.");
+        return;
+      }
+
+      window.location.href = "/account";
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
     <div className="glass-card rounded-[32px] border border-white/60 p-8">
       <form
-        action={(formData) => startTransition(() => void handleSubmit(formData))}
+        onSubmit={handleSubmit}
         className="space-y-4"
       >
         <div>
@@ -41,6 +51,8 @@ export function LoginForm() {
           <input
             type="email"
             name="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
             required
             className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-berry)]"
           />
@@ -52,6 +64,8 @@ export function LoginForm() {
           <input
             type="password"
             name="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
             required
             minLength={8}
             className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-berry)]"

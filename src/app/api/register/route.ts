@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { env } from "@/lib/env";
+import { normalizeEmail } from "@/lib/identity";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please check your form fields." }, { status: 400 });
   }
 
-  const email = parsed.data.email.toLowerCase();
+  const email = normalizeEmail(parsed.data.email);
 
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -45,25 +46,41 @@ export async function POST(request: Request) {
 
   const passwordHash = await bcrypt.hash(parsed.data.password, 10);
 
-  const user = await prisma.user.create({
-    data: {
-      name: parsed.data.name,
-      email,
-      passwordHash,
-      role: "USER",
-    },
-  });
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name: parsed.data.name.trim(),
+        email,
+        passwordHash,
+        role: "USER",
+      },
+    });
 
-  await prisma.marketingConsent.create({
-    data: {
-      userId: user.id,
-      email,
-      subscribed: parsed.data.marketingOptIn,
-      source: "register",
-      consentedAt: parsed.data.marketingOptIn ? new Date() : null,
-      unsubscribedAt: parsed.data.marketingOptIn ? null : new Date(),
-    },
-  });
+    await prisma.marketingConsent.create({
+      data: {
+        userId: user.id,
+        email,
+        subscribed: parsed.data.marketingOptIn,
+        source: "register",
+        consentedAt: parsed.data.marketingOptIn ? new Date() : null,
+        unsubscribedAt: parsed.data.marketingOptIn ? null : new Date(),
+      },
+    });
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      return NextResponse.json(
+        { error: "An account with this email already exists." },
+        { status: 409 },
+      );
+    }
+
+    throw error;
+  }
 
   return NextResponse.json({ ok: true });
 }

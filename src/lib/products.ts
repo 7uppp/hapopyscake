@@ -3,7 +3,8 @@ import { z } from "zod";
 import {
   formatCurrency,
   getMinimumBrisbanePickupDateTime,
-  parseBrisbaneDateTime,
+  isAtLeastMinimumBrisbanePickupDateTime,
+  isWithinBrisbanePickupHours,
 } from "@/lib/utils";
 
 export const colourOptions = [
@@ -159,12 +160,18 @@ const commonCustomerSchema = z.object({
   pickupDate: z
     .string()
     .min(1, "Please choose a pickup date and time.")
-    .refine((value) => {
-      const selectedDate = parseBrisbaneDateTime(value);
-      const minimumDate = parseBrisbaneDateTime(getMinimumBrisbanePickupDateTime());
-
-      return Boolean(selectedDate && minimumDate && selectedDate >= minimumDate);
-    }, "Please choose a pickup time at least 7 days from today in Brisbane time."),
+    .refine(
+      (value) =>
+        isAtLeastMinimumBrisbanePickupDateTime(
+          value,
+          getMinimumBrisbanePickupDateTime(),
+        ),
+      "Please choose a pickup time at least 7 days from today in Brisbane time.",
+    )
+    .refine(
+      isWithinBrisbanePickupHours,
+      "Please choose a pickup time between 10:00 AM and 8:00 PM Brisbane time.",
+    ),
   notes: z.string().max(600).optional().default(""),
   marketingOptIn: z.boolean().default(false),
 });
@@ -237,6 +244,8 @@ const fullBodySelectionSchema = z.object({
   addOns: z
     .array(z.enum(Object.keys(addOnCatalog) as [AddOnKey, ...AddOnKey[]]))
     .default([]),
+  petName: z.string().min(1),
+  turningAge: z.string().min(1),
 });
 
 const cookieSelectionSchema = z.object({
@@ -257,10 +266,23 @@ export const orderSelectionSchema = z.discriminatedUnion("productType", [
   cookieSelectionSchema,
 ]);
 
-export const orderPayloadSchema = commonCustomerSchema.extend({
-  imageUploads: z.array(imageReferenceSchema).max(5).default([]),
-  selection: orderSelectionSchema,
-});
+export const orderPayloadSchema = commonCustomerSchema
+  .extend({
+    imageUploads: z.array(imageReferenceSchema).max(5).default([]),
+    selection: orderSelectionSchema,
+  })
+  .superRefine((value, ctx) => {
+    if (
+      value.selection.productType !== "themed-cookie" &&
+      value.imageUploads.length === 0
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["imageUploads"],
+        message: "Please upload at least 1 reference photo before checkout.",
+      });
+    }
+  });
 
 export type OrderPayload = z.infer<typeof orderPayloadSchema>;
 export type OrderSelection = OrderPayload["selection"];
@@ -328,6 +350,8 @@ export function buildOrderSummary(selection: OrderSelection) {
         { label: "Product", value: "3D Full Body Cake" },
         { label: "Size", value: selection.size },
         { label: "Flavor", value: flavorCatalog[selection.flavor].label },
+        { label: "Pet name", value: selection.petName },
+        { label: "Turning age", value: selection.turningAge },
         {
           label: "Add-ons",
           value:

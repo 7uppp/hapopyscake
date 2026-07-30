@@ -1,6 +1,11 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore, useTransition } from "react";
+import {
+  type FormEvent,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import type { Session } from "next-auth";
 import Link from "next/link";
@@ -37,12 +42,27 @@ function parseCartItem(value: string | null): CartItem | null {
       selection: selection.data,
       pickupDate: parsed.pickupDate,
       notes: parsed.notes ?? "",
-      imageUploads: Array.isArray(parsed.imageUploads) ? parsed.imageUploads : [],
+      imageUploads: Array.isArray(parsed.imageUploads)
+        ? parsed.imageUploads.filter(isCartImageUpload)
+        : [],
       addedAt: parsed.addedAt ?? new Date().toISOString(),
     };
   } catch {
     return null;
   }
+}
+
+function isCartImageUpload(value: unknown): value is CartItem["imageUploads"][number] {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const image = value as CartItem["imageUploads"][number];
+  return (
+    typeof image.path === "string" &&
+    typeof image.originalName === "string" &&
+    ["image/jpeg", "image/png", "image/webp"].includes(image.mimeType)
+  );
 }
 
 function subscribeToCartStorage() {
@@ -68,7 +88,11 @@ export function CartCheckoutForm({
   );
   const cartItem = useMemo(() => parseCartItem(cartSnapshot), [cartSnapshot]);
   const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
+  const [customerName, setCustomerName] = useState(session?.user?.name ?? "");
+  const [email, setEmail] = useState(session?.user?.email ?? "");
+  const [phone, setPhone] = useState("");
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
 
   const summaryRows = useMemo(
     () => (cartItem ? buildOrderSummary(cartItem.selection) : []),
@@ -81,7 +105,7 @@ export function CartCheckoutForm({
     ? formatCurrency(calculateOrderAmount(cartItem.selection))
     : formatCurrency(0);
 
-  async function checkout(formData: FormData) {
+  async function checkout() {
     setError("");
 
     if (!cartItem) {
@@ -89,13 +113,21 @@ export function CartCheckoutForm({
       return;
     }
 
+    if (
+      cartItem.selection.productType !== "themed-cookie" &&
+      cartItem.imageUploads.length === 0
+    ) {
+      setError("Please edit this order and upload at least 1 reference photo.");
+      return;
+    }
+
     const payload = {
-      customerName: String(formData.get("customerName") ?? ""),
-      email: String(formData.get("email") ?? ""),
-      phone: String(formData.get("phone") ?? ""),
+      customerName,
+      email,
+      phone,
       pickupDate: cartItem.pickupDate,
       notes: cartItem.notes,
-      marketingOptIn: formData.get("marketingOptIn") === "on",
+      marketingOptIn,
       selection: cartItem.selection,
       imageUploads: cartItem.imageUploads,
     };
@@ -113,6 +145,22 @@ export function CartCheckoutForm({
     }
 
     window.location.href = result.checkoutUrl;
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isPending) {
+      return;
+    }
+
+    setIsPending(true);
+
+    try {
+      await checkout();
+    } finally {
+      setIsPending(false);
+    }
   }
 
   if (!cartItem) {
@@ -139,7 +187,7 @@ export function CartCheckoutForm({
 
   return (
     <form
-      action={(formData) => startTransition(() => void checkout(formData))}
+      onSubmit={handleSubmit}
       className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]"
     >
       <div className="glass-card rounded-[36px] border border-white/60 p-8">
@@ -180,7 +228,8 @@ export function CartCheckoutForm({
 
         <Link
           href={`/order/${product?.slug ?? "head-cake"}`}
-          className="mt-5 inline-flex text-sm font-bold text-[var(--color-berry)]"
+          className="fredoka-text mt-5 inline-flex w-full items-center justify-center rounded-full bg-[var(--color-berry)] px-6 py-3 text-center text-sm font-black uppercase tracking-[0.04em] text-white shadow-lg shadow-pink-300/45 transition hover:-translate-y-0.5 md:w-auto"
+          style={{ color: "white" }}
         >
           Edit product details
         </Link>
@@ -220,7 +269,8 @@ export function CartCheckoutForm({
             <input
               name="customerName"
               type="text"
-              defaultValue={session?.user?.name ?? ""}
+              value={customerName}
+              onChange={(event) => setCustomerName(event.target.value)}
               required
               className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3"
             />
@@ -232,7 +282,8 @@ export function CartCheckoutForm({
             <input
               name="email"
               type="email"
-              defaultValue={session?.user?.email ?? ""}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               required
               className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3"
             />
@@ -244,6 +295,8 @@ export function CartCheckoutForm({
             <input
               name="phone"
               type="text"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
               required
               className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3"
             />
@@ -251,7 +304,13 @@ export function CartCheckoutForm({
         </div>
 
         <label className="mt-6 flex gap-3 rounded-2xl bg-white/80 px-4 py-3 text-sm text-[var(--color-cocoa)]">
-          <input type="checkbox" name="marketingOptIn" className="mt-1" />
+          <input
+            type="checkbox"
+            name="marketingOptIn"
+            checked={marketingOptIn}
+            onChange={(event) => setMarketingOptIn(event.target.checked)}
+            className="mt-1"
+          />
           <span>Send me birthday reminders and seasonal offers by email.</span>
         </label>
 

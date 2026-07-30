@@ -38,11 +38,18 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/favicon.png",
+        url: "/favicon-32x32.png",
         type: "image/png",
+        sizes: "32x32",
+      },
+      {
+        url: "/icon-192.png",
+        type: "image/png",
+        sizes: "192x192",
       },
     ],
-    shortcut: "/favicon.png",
+    shortcut: "/favicon-32x32.png",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: `${siteConfig.name} | Custom Pet Birthday Cakes Brisbane`,

@@ -19,7 +19,13 @@ import {
   orderSelectionSchema,
   type ProductType,
 } from "@/lib/products";
-import { formatCurrency, getMinimumBrisbanePickupDateTime } from "@/lib/utils";
+import {
+  formatBrisbaneDateTimeInput,
+  formatCurrency,
+  getMinimumBrisbanePickupDateTime,
+  isAtLeastMinimumBrisbanePickupDateTime,
+  isWithinBrisbanePickupHours,
+} from "@/lib/utils";
 
 type OrderFormProps = {
   session: Session | null;
@@ -57,6 +63,18 @@ function CarouselArrowIcon({ direction }: { direction: "previous" | "next" }) {
   );
 }
 
+const pickupTimeOptions = Array.from({ length: 41 }, (_, index) => {
+  const totalMinutes = 10 * 60 + index * 15;
+  const hour = Math.floor(totalMinutes / 60);
+  const minute = totalMinutes % 60;
+  const value = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  const hour12 = hour > 12 ? hour - 12 : hour;
+  const period = hour >= 12 ? "PM" : "AM";
+  const label = `${hour12}:${String(minute).padStart(2, "0")} ${period}`;
+
+  return { value, label };
+});
+
 const defaultSelectionByProduct: Record<ProductType, Record<string, unknown>> = {
   "head-cupcake": {
     productType: "head-cupcake",
@@ -80,6 +98,8 @@ const defaultSelectionByProduct: Record<ProductType, Record<string, unknown>> = 
     size: "small",
     flavor: "chickenPumpkin",
     addOns: [] as string[],
+    petName: "",
+    turningAge: "",
   },
   "themed-cookie": {
     productType: "themed-cookie",
@@ -106,23 +126,85 @@ function isCartImageUpload(value: unknown): value is CartImageUpload {
   );
 }
 
+function parseStoredCartItem(value: string | null): CartItem | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(value) as CartItem;
+    const selection = orderSelectionSchema.safeParse(parsed.selection);
+
+    if (!selection.success || parsed.version !== 1 || !parsed.pickupDate) {
+      return null;
+    }
+
+    return {
+      version: 1,
+      selection: selection.data,
+      pickupDate: parsed.pickupDate,
+      notes: parsed.notes ?? "",
+      imageUploads: Array.isArray(parsed.imageUploads)
+        ? parsed.imageUploads.filter(isCartImageUpload)
+        : [],
+      addedAt: parsed.addedAt ?? new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function getStoredCartItemForProduct(productType: ProductType) {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const cartItem = parseStoredCartItem(
+    window.localStorage.getItem(cartStorageKey),
+  );
+
+  return cartItem?.selection.productType === productType ? cartItem : null;
+}
+
 export function OrderForm({
   session,
   firstOrderCookieEligible,
   initialProductType = "head-cake",
   productPreviewImages = [],
 }: OrderFormProps) {
+  const [initialCartItem] = useState(() =>
+    getStoredCartItemForProduct(initialProductType),
+  );
   const [selection, setSelection] = useState<Record<string, unknown>>(
-    defaultSelectionByProduct[initialProductType],
+    initialCartItem?.selection ?? defaultSelectionByProduct[initialProductType],
   );
   const [files, setFiles] = useState<File[]>([]);
+  const [existingImageUploads] = useState<CartImageUpload[]>(
+    initialCartItem?.imageUploads ?? [],
+  );
+  const [notes, setNotes] = useState(initialCartItem?.notes ?? "");
   const [error, setError] = useState("");
+  const [pickupDate, setPickupDate] = useState(
+    initialCartItem?.pickupDate.slice(0, 10) ?? "",
+  );
+  const [pickupTime, setPickupTime] = useState(
+    initialCartItem?.pickupDate.slice(11, 16) ?? "",
+  );
+  const [pickupError, setPickupError] = useState("");
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [previewImage, setPreviewImage] = useState<ProductPreviewImage | null>(null);
   const [isPending, startTransition] = useTransition();
   const productType = initialProductType;
   const maxReferencePhotos = 5;
   const minimumPickupDateTime = useMemo(() => getMinimumBrisbanePickupDateTime(), []);
+  const minimumPickupDateTimeLabel = useMemo(
+    () => formatBrisbaneDateTimeInput(minimumPickupDateTime),
+    [minimumPickupDateTime],
+  );
+  const minimumPickupDate = minimumPickupDateTime.slice(0, 10);
+  const minimumPickupTime = minimumPickupDateTime.slice(11);
+  const selectedPickupDateTime =
+    pickupDate && pickupTime ? `${pickupDate}T${pickupTime}` : "";
   const displayedPreviewImages =
     productType === "themed-cookie"
       ? productPreviewImages.filter((image) => {
@@ -160,6 +242,11 @@ export function OrderForm({
     }
   })();
   const hasMultiplePreviewImages = displayedPreviewImages.length > 1;
+  const savedReferencePhotoCount = existingImageUploads.length + files.length;
+  const availableNewPhotoSlots = Math.max(
+    0,
+    maxReferencePhotos - existingImageUploads.length,
+  );
 
   function showPreviousImage() {
     if (!hasMultiplePreviewImages) {
@@ -203,8 +290,9 @@ export function OrderForm({
     onFieldChange("addOns", [...current, addOnKey]);
   }
 
-  async function addToCart(formData: FormData) {
+  async function addToCart() {
     setError("");
+    setPickupError("");
 
     const parsedSelection = orderSelectionSchema.safeParse(selection);
 
@@ -213,17 +301,45 @@ export function OrderForm({
       return;
     }
 
-    const pickupDate = String(formData.get("pickupDate") ?? "");
+    const selectedPickupDate = selectedPickupDateTime;
 
-    if (!pickupDate) {
-      setError("Please choose a pickup date and time.");
+    if (!selectedPickupDate) {
+      setPickupError("Please choose a pickup date and time.");
+      return;
+    }
+
+    if (
+      !isAtLeastMinimumBrisbanePickupDateTime(
+        selectedPickupDate,
+        minimumPickupDateTime,
+      )
+    ) {
+      setPickupError(
+        `Please choose a pickup time from ${minimumPickupDateTimeLabel} or later.`,
+      );
+      return;
+    }
+
+    if (!isWithinBrisbanePickupHours(selectedPickupDate)) {
+      setPickupError(
+        "Pickup is available daily between 10:00 AM and 8:00 PM Brisbane time.",
+      );
+      return;
+    }
+
+    if (productType !== "themed-cookie" && savedReferencePhotoCount === 0) {
+      setError("Please upload at least 1 reference photo before adding to cart.");
       return;
     }
 
     const draftId = crypto.randomUUID();
-    const imageUploads: CartImageUpload[] = [];
+    const imageUploads: CartImageUpload[] = existingImageUploads.slice(
+      0,
+      maxReferencePhotos,
+    );
+    const remainingPhotoSlots = maxReferencePhotos - imageUploads.length;
 
-    for (const file of files.slice(0, maxReferencePhotos)) {
+    for (const file of files.slice(0, remainingPhotoSlots)) {
       const uploadData = new FormData();
       uploadData.append("file", file);
       uploadData.append("draftId", draftId);
@@ -245,8 +361,8 @@ export function OrderForm({
     const cartItem: CartItem = {
       version: 1,
       selection: parsedSelection.data,
-      pickupDate,
-      notes: String(formData.get("notes") ?? ""),
+      pickupDate: selectedPickupDate,
+      notes,
       imageUploads,
       addedAt: new Date().toISOString(),
     };
@@ -265,7 +381,8 @@ export function OrderForm({
       </Link>
 
       <form
-        action={(formData) => startTransition(() => void addToCart(formData))}
+        noValidate
+        action={() => startTransition(() => void addToCart())}
         className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start"
       >
         <div className="space-y-4 lg:sticky lg:top-6">
@@ -740,9 +857,13 @@ export function OrderForm({
                 </>
               ) : null}
 
-              {productType !== "full-body-cake" ? (
+              {productType === "head-cupcake" ||
+              productType === "head-cake" ||
+              productType === "full-body-cake" ||
+              productType === "themed-cookie" ? (
                 <div className="grid gap-4 md:grid-cols-2">
-                  {productType !== "themed-cookie" ? (
+                  {productType !== "themed-cookie" &&
+                  productType !== "full-body-cake" ? (
                     <div>
                       <label className="mb-1.5 block text-sm font-bold text-[var(--color-cocoa)]">
                         {productType === "head-cupcake" ? "Cream Color" : "Colour"}
@@ -863,14 +984,80 @@ export function OrderForm({
                 </label>
                 <input
                   name="pickupDate"
-                  type="datetime-local"
-                  min={minimumPickupDateTime}
-                  required
-                  className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-2.5 shadow-sm"
+                  type="hidden"
+                  value={selectedPickupDateTime}
+                  readOnly
                 />
-                <p className="mt-1.5 text-xs leading-5 text-[var(--color-cocoa)]/75">
-                  Please choose a Brisbane pickup time at least 7 days from today.
+                <div className="grid gap-3 sm:grid-cols-[1fr_0.75fr]">
+                  <input
+                    type="date"
+                    value={pickupDate}
+                    onChange={(event) => {
+                      const nextPickupDate = event.target.value;
+                      setPickupDate(nextPickupDate);
+                      if (
+                        nextPickupDate === minimumPickupDate &&
+                        pickupTime &&
+                        pickupTime < minimumPickupTime
+                      ) {
+                        setPickupTime("");
+                      }
+                      setPickupError("");
+                    }}
+                    min={minimumPickupDate}
+                    aria-invalid={Boolean(pickupError)}
+                    aria-describedby="pickup-date-help pickup-date-error"
+                    className={`w-full rounded-2xl border bg-white px-4 py-2.5 shadow-sm ${
+                      pickupError
+                        ? "border-rose-300 ring-2 ring-rose-100"
+                        : "border-[var(--color-blush)]"
+                    }`}
+                  />
+                  <select
+                    value={pickupTime}
+                    onChange={(event) => {
+                      setPickupTime(event.target.value);
+                      setPickupError("");
+                    }}
+                    aria-label="Pickup time"
+                    aria-invalid={Boolean(pickupError)}
+                    aria-describedby="pickup-date-help pickup-date-error"
+                    className={`w-full rounded-2xl border bg-white px-4 py-2.5 shadow-sm ${
+                      pickupError
+                        ? "border-rose-300 ring-2 ring-rose-100"
+                        : "border-[var(--color-blush)]"
+                    }`}
+                  >
+                    <option value="">Choose time</option>
+                    {pickupTimeOptions.map((option) => (
+                      <option
+                        key={option.value}
+                        value={option.value}
+                        disabled={
+                          pickupDate === minimumPickupDate &&
+                          option.value < minimumPickupTime
+                        }
+                      >
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p
+                  id="pickup-date-help"
+                  className="mt-1.5 text-xs leading-5 text-[var(--color-cocoa)]/75"
+                >
+                  Earliest pickup: {minimumPickupDateTimeLabel}. Pickup hours:
+                  10:00 AM–8:00 PM Brisbane time.
                 </p>
+                {pickupError ? (
+                  <p
+                    id="pickup-date-error"
+                    className="mt-2 rounded-2xl bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-700"
+                  >
+                    {pickupError}
+                  </p>
+                ) : null}
               </div>
 
               {productType !== "themed-cookie" ? (
@@ -909,7 +1096,7 @@ export function OrderForm({
                       setFiles(
                         Array.from(event.target.files ?? []).slice(
                           0,
-                          maxReferencePhotos,
+                          availableNewPhotoSlots,
                         ),
                       )
                     }
@@ -918,9 +1105,16 @@ export function OrderForm({
                   <p className="mt-1.5 text-xs leading-5 text-[var(--color-cocoa)]">
                     Upload 1–5 reference photos. Each photo must be under 2MB.
                   </p>
+                  {existingImageUploads.length > 0 ? (
+                    <p className="mt-1 text-xs font-bold text-[var(--color-berry)]">
+                      {existingImageUploads.length} uploaded reference photo
+                      {existingImageUploads.length === 1 ? "" : "s"} saved.
+                    </p>
+                  ) : null}
                   {files.length > 0 ? (
                     <p className="mt-1 text-xs font-bold text-[var(--color-berry)]">
-                      {files.length} photo{files.length === 1 ? "" : "s"} selected.
+                      {files.length} new photo{files.length === 1 ? "" : "s"}{" "}
+                      selected.
                     </p>
                   ) : null}
                 </div>
@@ -942,6 +1136,8 @@ export function OrderForm({
                 <textarea
                   name="notes"
                   rows={3}
+                  value={notes}
+                  onChange={(event) => setNotes(event.target.value)}
                   className="w-full rounded-3xl border border-[var(--color-blush)] bg-white px-4 py-2.5 shadow-sm"
                   placeholder="Allergies, inspiration notes, exact pickup window..."
                 />
@@ -959,7 +1155,14 @@ export function OrderForm({
               disabled={isPending}
               className="fredoka-text w-full rounded-full bg-[var(--color-berry)] px-6 py-3.5 text-base font-black uppercase tracking-[0.04em] text-white shadow-lg shadow-pink-300/50 transition hover:-translate-y-0.5 disabled:opacity-60"
             >
-              {isPending ? "Adding to cart..." : "Add to cart"}
+              {isPending ? (
+                "Adding to cart..."
+              ) : (
+                <>
+                  <span className="md:hidden">Add to cart · {pricePreview}</span>
+                  <span className="hidden md:inline">Add to cart</span>
+                </>
+              )}
             </button>
           </div>
         </div>

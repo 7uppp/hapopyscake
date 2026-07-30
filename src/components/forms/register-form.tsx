@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { type FormEvent, useState } from "react";
 
 import { signIn } from "next-auth/react";
 
@@ -13,7 +13,11 @@ type RegisterFormProps = {
 export function RegisterForm({ initialEmail = "" }: RegisterFormProps) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState(initialEmail);
+  const [password, setPassword] = useState("");
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
 
   function markSignupPopupCompleted() {
     try {
@@ -26,51 +30,62 @@ export function RegisterForm({ initialEmail = "" }: RegisterFormProps) {
     }
   }
 
-  async function submit(formData: FormData) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isPending) {
+      return;
+    }
+
     setError("");
     setSuccess("");
+    setIsPending(true);
 
     const payload = {
-      name: String(formData.get("name") ?? ""),
-      email: String(formData.get("email") ?? ""),
-      password: String(formData.get("password") ?? ""),
-      marketingOptIn: formData.get("marketingOptIn") === "on",
+      name: name.trim(),
+      email: email.trim(),
+      password,
+      marketingOptIn,
     };
 
-    const response = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!response.ok) {
-      setError(result.error ?? "We couldn't create your account.");
-      return;
+      if (!response.ok) {
+        setError(result.error ?? "We couldn't create your account.");
+        return;
+      }
+
+      setSuccess("Account created. Logging you in...");
+      markSignupPopupCompleted();
+
+      const loginResult = await signIn("credentials", {
+        email: payload.email,
+        password: payload.password,
+        redirect: false,
+      });
+
+      if (loginResult?.error) {
+        window.location.href = "/login";
+        return;
+      }
+
+      window.location.href = "/account";
+    } finally {
+      setIsPending(false);
     }
-
-    setSuccess("Account created. Logging you in...");
-    markSignupPopupCompleted();
-
-    const loginResult = await signIn("credentials", {
-      email: payload.email,
-      password: payload.password,
-      redirect: false,
-    });
-
-    if (loginResult?.error) {
-      window.location.href = "/login";
-      return;
-    }
-
-    window.location.href = "/account";
   }
 
   return (
     <div className="glass-card rounded-[32px] border border-white/60 p-8">
       <form
-        action={(formData) => startTransition(() => void submit(formData))}
+        onSubmit={submit}
         className="space-y-4"
       >
         <div>
@@ -80,6 +95,8 @@ export function RegisterForm({ initialEmail = "" }: RegisterFormProps) {
           <input
             type="text"
             name="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
             required
             className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-berry)]"
           />
@@ -91,7 +108,8 @@ export function RegisterForm({ initialEmail = "" }: RegisterFormProps) {
           <input
             type="email"
             name="email"
-            defaultValue={initialEmail}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
             required
             className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-berry)]"
           />
@@ -103,13 +121,21 @@ export function RegisterForm({ initialEmail = "" }: RegisterFormProps) {
           <input
             type="password"
             name="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
             required
             minLength={8}
             className="w-full rounded-2xl border border-[var(--color-blush)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-berry)]"
           />
         </div>
         <label className="flex gap-3 rounded-2xl bg-white/80 px-4 py-3 text-sm text-[var(--color-cocoa)]">
-          <input type="checkbox" name="marketingOptIn" className="mt-1" />
+          <input
+            type="checkbox"
+            name="marketingOptIn"
+            checked={marketingOptIn}
+            onChange={(event) => setMarketingOptIn(event.target.checked)}
+            className="mt-1"
+          />
           <span>
             I want launch updates, seasonal offers, and birthday reminder emails.
           </span>

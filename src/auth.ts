@@ -5,6 +5,7 @@ import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 
 import { env } from "@/lib/env";
+import { normalizeEmail } from "@/lib/identity";
 import { prisma } from "@/lib/prisma";
 
 const credentialsSchema = z.object({
@@ -63,8 +64,9 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const email = normalizeEmail(parsed.data.email);
         const user = await prisma.user.findUnique({
-          where: { email: parsed.data.email.toLowerCase() },
+          where: { email },
         });
 
         if (!user?.passwordHash) {

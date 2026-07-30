@@ -38,7 +38,37 @@ export function getMinimumBrisbanePickupDateTime() {
   minimumDate.setDate(minimumDate.getDate() + 7);
   minimumDate.setSeconds(0, 0);
 
-  return formatBrisbaneDateTimeLocal(minimumDate);
+  const minimumValue = formatBrisbaneDateTimeLocal(minimumDate);
+  const datePart = minimumValue.slice(0, 10);
+
+  return `${datePart}T10:00`;
+}
+
+export function isAtLeastMinimumBrisbanePickupDateTime(
+  value: string,
+  minimumValue = getMinimumBrisbanePickupDateTime(),
+) {
+  if (
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value) ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(minimumValue)
+  ) {
+    return false;
+  }
+
+  return value >= minimumValue;
+}
+
+export function isWithinBrisbanePickupHours(value: string) {
+  const match = value.match(/T(\d{2}):(\d{2})$/);
+
+  if (!match) {
+    return false;
+  }
+
+  const [, hourValue, minuteValue] = match;
+  const minutes = Number(hourValue) * 60 + Number(minuteValue);
+
+  return minutes >= 10 * 60 && minutes <= 20 * 60;
 }
 
 export function parseBrisbaneDateTime(value: string) {

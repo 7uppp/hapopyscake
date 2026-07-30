@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createCheckoutSession } from "@/lib/stripe";
 import { env } from "@/lib/env";
+import { normalizeEmail } from "@/lib/identity";
 import {
   calculateOrderAmount,
   orderPayloadSchema,
@@ -106,12 +107,14 @@ export async function POST(request: Request) {
   }
 
   const session = await auth();
+  const email = normalizeEmail(parsed.data.email);
+  const payload = { ...parsed.data, email };
   const userId =
-    session?.user?.email?.toLowerCase() === parsed.data.email.toLowerCase()
+    session?.user?.email && normalizeEmail(session.user.email) === email
       ? session.user.id
       : null;
-  const amountCents = calculateOrderAmount(parsed.data.selection) * 100;
-  const pickupDate = parseBrisbaneDateTime(parsed.data.pickupDate);
+  const amountCents = calculateOrderAmount(payload.selection) * 100;
+  const pickupDate = parseBrisbaneDateTime(payload.pickupDate);
 
   if (!pickupDate) {
     return NextResponse.json({ error: "Please choose a valid pickup time." }, { status: 400 });
@@ -129,24 +132,24 @@ export async function POST(request: Request) {
   const order = await prisma.order.create({
     data: {
       userId,
-      customerName: parsed.data.customerName,
-      email: parsed.data.email.toLowerCase(),
-      phone: parsed.data.phone,
+      customerName: payload.customerName,
+      email,
+      phone: payload.phone,
       pickupDate,
-      notes: parsed.data.notes,
-      marketingOptIn: parsed.data.marketingOptIn,
-      productType: parsed.data.selection.productType,
+      notes: payload.notes,
+      marketingOptIn: payload.marketingOptIn,
+      productType: payload.selection.productType,
       configJson: {
-        ...parsed.data.selection,
-        pickupDateBrisbane: parsed.data.pickupDate,
+        ...payload.selection,
+        pickupDateBrisbane: payload.pickupDate,
         firstOrderCookieIncluded,
       },
       amountCents,
       currency: "AUD",
       status: "PENDING_PAYMENT",
-      images: parsed.data.imageUploads.length
+      images: payload.imageUploads.length
         ? {
-            create: parsed.data.imageUploads.map((image) => ({
+            create: payload.imageUploads.map((image) => ({
               bucket: env.orderBucket,
               path: image.path,
               mimeType: image.mimeType,
@@ -159,13 +162,13 @@ export async function POST(request: Request) {
 
   await prisma.$executeRaw`
     UPDATE "Order"
-    SET "pickupDate" = ${parsed.data.pickupDate}::timestamp
+    SET "pickupDate" = ${payload.pickupDate}::timestamp
     WHERE "id" = ${order.id}
   `;
 
   const checkoutSession = await createCheckoutSession({
     orderId: order.id,
-    payload: parsed.data,
+    payload,
   });
 
   await prisma.order.update({
@@ -177,7 +180,7 @@ export async function POST(request: Request) {
   });
 
   const existingConsent = await prisma.marketingConsent.findFirst({
-    where: { email: parsed.data.email.toLowerCase() },
+    where: { email },
     select: { id: true },
     orderBy: { updatedAt: "desc" },
   });
@@ -187,21 +190,21 @@ export async function POST(request: Request) {
       where: { id: existingConsent.id },
       data: {
         userId,
-        subscribed: parsed.data.marketingOptIn,
+        subscribed: payload.marketingOptIn,
         source: "order",
-        consentedAt: parsed.data.marketingOptIn ? new Date() : null,
-        unsubscribedAt: parsed.data.marketingOptIn ? null : new Date(),
+        consentedAt: payload.marketingOptIn ? new Date() : null,
+        unsubscribedAt: payload.marketingOptIn ? null : new Date(),
       },
     });
   } else {
     await prisma.marketingConsent.create({
       data: {
         userId,
-        email: parsed.data.email.toLowerCase(),
-        subscribed: parsed.data.marketingOptIn,
+        email,
+        subscribed: payload.marketingOptIn,
         source: "order",
-        consentedAt: parsed.data.marketingOptIn ? new Date() : null,
-        unsubscribedAt: parsed.data.marketingOptIn ? null : new Date(),
+        consentedAt: payload.marketingOptIn ? new Date() : null,
+        unsubscribedAt: payload.marketingOptIn ? null : new Date(),
       },
     });
   }
