@@ -110,7 +110,6 @@ const localBusinessJsonLd = {
   priceRange: "$$",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "18 Park Close",
     addressLocality: "Hillcrest",
     addressRegion: "QLD",
     postalCode: "4118",

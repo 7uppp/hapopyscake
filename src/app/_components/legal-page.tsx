@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
+
 type LegalPageProps = {
   title: string;
-  body: string;
+  body: ReactNode;
 };
 
 export function LegalPage({ title, body }: LegalPageProps) {
@@ -13,7 +15,9 @@ export function LegalPage({ title, body }: LegalPageProps) {
         <h1 className="section-title mt-3 text-5xl text-[var(--color-ink)]">
           {title}
         </h1>
-        <p className="mt-6 text-lg leading-8 text-[var(--color-cocoa)]">{body}</p>
+        <div className="mt-6 text-lg leading-8 text-[var(--color-cocoa)]">
+          {body}
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { env, assertServerEnv } from "@/lib/env";
 import type { OrderPayload } from "@/lib/products";
 import { buildOrderSummary, calculateOrderAmount } from "@/lib/products";
 import { createUnsubscribeToken } from "@/lib/security";
+import { siteConfig } from "@/lib/site";
 import { formatCurrency } from "@/lib/utils";
 
 type EmailOrderPayload = OrderPayload & {
@@ -50,7 +51,7 @@ export async function sendOrderConfirmationEmail(options: {
         <table style="margin:16px 0;border-collapse:collapse;">${renderSummaryRows(options.payload)}</table>
         <p><strong>Pickup request:</strong> ${escapeHtml(options.payload.pickupDate)}</p>
         <p><strong>Pickup address:</strong> 18 Park Close, Hillcrest QLD 4118</p>
-        <p><strong>Pickup contact:</strong> 0472707510</p>
+        <p><strong>Pickup contact:</strong> ${escapeHtml(siteConfig.phone)}</p>
         <p><strong>Total paid:</strong> ${amount}</p>
         ${
           options.payload.firstOrderCookieIncluded

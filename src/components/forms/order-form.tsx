@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 
 import type { Session } from "next-auth";
 import Image from "next/image";
@@ -193,7 +193,7 @@ export function OrderForm({
   const [pickupError, setPickupError] = useState("");
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [previewImage, setPreviewImage] = useState<ProductPreviewImage | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isAdding, setIsAdding] = useState(false);
   const productType = initialProductType;
   const maxReferencePhotos = 5;
   const minimumPickupDateTime = useMemo(() => getMinimumBrisbanePickupDateTime(), []);
@@ -290,6 +290,24 @@ export function OrderForm({
     onFieldChange("addOns", [...current, addOnKey]);
   }
 
+  async function uploadReferencePhoto(file: File, draftId: string) {
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+    uploadData.append("draftId", draftId);
+
+    const uploadResponse = await fetch("/api/uploads/order-reference", {
+      method: "POST",
+      body: uploadData,
+    });
+    const uploadResult = await uploadResponse.json();
+
+    if (!uploadResponse.ok || !isCartImageUpload(uploadResult.file)) {
+      throw new Error(uploadResult.error ?? "Image upload failed.");
+    }
+
+    return uploadResult.file;
+  }
+
   async function addToCart() {
     setError("");
     setPickupError("");
@@ -339,23 +357,21 @@ export function OrderForm({
     );
     const remainingPhotoSlots = maxReferencePhotos - imageUploads.length;
 
-    for (const file of files.slice(0, remainingPhotoSlots)) {
-      const uploadData = new FormData();
-      uploadData.append("file", file);
-      uploadData.append("draftId", draftId);
+    try {
+      const uploadedImages = await Promise.all(
+        files
+          .slice(0, remainingPhotoSlots)
+          .map((file) => uploadReferencePhoto(file, draftId)),
+      );
 
-      const uploadResponse = await fetch("/api/uploads/order-reference", {
-        method: "POST",
-        body: uploadData,
-      });
-      const uploadResult = await uploadResponse.json();
-
-      if (!uploadResponse.ok || !isCartImageUpload(uploadResult.file)) {
-        setError(uploadResult.error ?? "Image upload failed.");
-        return;
-      }
-
-      imageUploads.push(uploadResult.file);
+      imageUploads.push(...uploadedImages);
+    } catch (uploadError) {
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : "Image upload failed.",
+      );
+      return;
     }
 
     const cartItem: CartItem = {
@@ -371,6 +387,22 @@ export function OrderForm({
     window.location.href = "/cart";
   }
 
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isAdding) {
+      return;
+    }
+
+    setIsAdding(true);
+
+    try {
+      await addToCart();
+    } finally {
+      setIsAdding(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-6xl">
       <Link
@@ -382,7 +414,7 @@ export function OrderForm({
 
       <form
         noValidate
-        action={() => startTransition(() => void addToCart())}
+        onSubmit={handleSubmit}
         className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start"
       >
         <div className="space-y-4 lg:sticky lg:top-6">
@@ -1152,11 +1184,11 @@ export function OrderForm({
 
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isAdding}
               className="fredoka-text w-full rounded-full bg-[var(--color-berry)] px-6 py-3.5 text-base font-black uppercase tracking-[0.04em] text-white shadow-lg shadow-pink-300/50 transition hover:-translate-y-0.5 disabled:opacity-60"
             >
-              {isPending ? (
-                "Adding to cart..."
+              {isAdding ? (
+                files.length > 0 ? "Uploading photos..." : "Adding to cart..."
               ) : (
                 <>
                   <span className="md:hidden">Add to cart · {pricePreview}</span>

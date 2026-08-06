@@ -5,10 +5,10 @@ export const siteConfig = {
   shortDescription:
     "Custom pet cakes and birthday treats made with love in Australia.",
   contactEmail: "info@happyscake.com",
-  phone: "0472707510",
-  phoneInternational: "+61 472 707 510",
-  pickupAddress: "18 Park Close, Hillcrest QLD 4118",
-  pickupSuburb: "Brisbane, QLD",
+  phone: "0423134293 (message only)",
+  phoneInternational: "+61 423 134 293",
+  pickupAddress: "Hillcrest, QLD",
+  pickupSuburb: "Hillcrest, QLD",
   socials: [
     {
       platform: "Instagram",
@@ -37,16 +37,17 @@ export const siteConfig = {
     { href: "/privacy-policy", label: "Privacy Policy" },
     { href: "/terms", label: "Terms" },
     { href: "/refund-policy", label: "Refund Policy" },
-    { href: "/pickup-information", label: "Pickup Information" },
+    { href: "/pickup-information", label: "Pickup & Delivery" },
   ],
   heroStats: [
     { label: "Pet-safe recipes", value: "5 proteins" },
     { label: "Signature cake lines", value: "4 products" },
-    { label: "Lead time", value: "2-4 days" },
+    { label: "Lead time", value: "7 days" },
   ],
   pickupNotes: [
-    "Orders are prepared for pickup only in Brisbane for the MVP launch.",
-    "Please place custom orders at least 48 hours in advance.",
+    "Pickup is available in Hillcrest, QLD, by appointment only.",
+    "Please place custom orders at least 7 days in advance.",
+    "Local delivery is available within the Brisbane area by quote.",
     "Reference photos help us match your pet's markings and expression.",
   ],
   faq: [
@@ -114,7 +115,7 @@ You can also customise the cake’s colours, theme, decorations and background. 
     {
       question: "Where is pickup? Do you offer delivery?",
       answer:
-        "Pickup is available in Hillcrest, QLD, by appointment only.\nPickup Hours: Daily, 10:00 AM – 8:00 PM\nPlease send us a text, direct message or give us a call at least 20 minutes before you arrive so we can have your order packed and ready for collection.\nDelivery is also available. Delivery fees are calculated based on distance. Please contact us via email or social media for a delivery quote.",
+        "Pickup is available in Hillcrest, QLD, by appointment only. The full address will be provided after your order is confirmed.\nPlease contact us at least 1 day in advance by email or text message to arrange your preferred pickup time.\nLocal delivery is available within the Brisbane area only. Delivery fees are calculated based on the distance from our pickup location. Please contact us by email or text message for a delivery quote.",
     },
     {
       question: "Can I change my pickup time?",
