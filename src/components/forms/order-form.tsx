@@ -75,6 +75,8 @@ const pickupTimeOptions = Array.from({ length: 41 }, (_, index) => {
   return { value, label };
 });
 
+const maxReferencePhotoSize = 2 * 1024 * 1024;
+
 const defaultSelectionByProduct: Record<ProductType, Record<string, unknown>> = {
   "head-cupcake": {
     productType: "head-cupcake",
@@ -179,11 +181,12 @@ export function OrderForm({
     initialCartItem?.selection ?? defaultSelectionByProduct[initialProductType],
   );
   const [files, setFiles] = useState<File[]>([]);
-  const [existingImageUploads] = useState<CartImageUpload[]>(
+  const [existingImageUploads, setExistingImageUploads] = useState<CartImageUpload[]>(
     initialCartItem?.imageUploads ?? [],
   );
   const [notes, setNotes] = useState(initialCartItem?.notes ?? "");
   const [error, setError] = useState("");
+  const [fileError, setFileError] = useState("");
   const [pickupDate, setPickupDate] = useState(
     initialCartItem?.pickupDate.slice(0, 10) ?? "",
   );
@@ -290,6 +293,38 @@ export function OrderForm({
     onFieldChange("addOns", [...current, addOnKey]);
   }
 
+  function onReferencePhotosChange(fileList: FileList | null) {
+    setFileError("");
+
+    const selectedFiles = Array.from(fileList ?? []).slice(
+      0,
+      availableNewPhotoSlots,
+    );
+    const oversizedFiles = selectedFiles.filter(
+      (file) => file.size > maxReferencePhotoSize,
+    );
+
+    if (oversizedFiles.length > 0) {
+      setFileError(
+        `${oversizedFiles
+          .map((file) => file.name)
+          .join(", ")} is over 2MB. Please upload JPG, PNG, or WEBP images under 2MB each.`,
+      );
+    }
+
+    setFiles(
+      selectedFiles.filter((file) => file.size <= maxReferencePhotoSize),
+    );
+  }
+
+  function removeExistingReferencePhoto(path: string) {
+    setExistingImageUploads((current) =>
+      current.filter((image) => image.path !== path),
+    );
+    setError("");
+    setFileError("");
+  }
+
   async function uploadReferencePhoto(file: File, draftId: string) {
     const uploadData = new FormData();
     uploadData.append("file", file);
@@ -346,7 +381,10 @@ export function OrderForm({
     }
 
     if (productType !== "themed-cookie" && savedReferencePhotoCount === 0) {
-      setError("Please upload at least 1 reference photo before adding to cart.");
+      setError(
+        fileError ||
+          "Please upload at least 1 JPG, PNG, or WEBP reference photo under 2MB before adding to cart.",
+      );
       return;
     }
 
@@ -1125,23 +1163,45 @@ export function OrderForm({
                     multiple
                     accept="image/png,image/jpeg,image/webp"
                     onChange={(event) =>
-                      setFiles(
-                        Array.from(event.target.files ?? []).slice(
-                          0,
-                          availableNewPhotoSlots,
-                        ),
-                      )
+                      onReferencePhotosChange(event.target.files)
                     }
                     className="block w-full rounded-2xl border border-dashed border-[var(--color-blush)] bg-white px-4 py-2.5 text-sm text-[var(--color-cocoa)]"
                   />
                   <p className="mt-1.5 text-xs leading-5 text-[var(--color-cocoa)]">
-                    Upload 1–5 reference photos. Each photo must be under 2MB.
+                    Upload 1–5 reference photos. JPG, PNG, or WEBP only. Each
+                    photo must be under 2MB.
                   </p>
-                  {existingImageUploads.length > 0 ? (
-                    <p className="mt-1 text-xs font-bold text-[var(--color-berry)]">
-                      {existingImageUploads.length} uploaded reference photo
-                      {existingImageUploads.length === 1 ? "" : "s"} saved.
+                  {fileError ? (
+                    <p className="mt-2 rounded-2xl bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-700">
+                      {fileError}
                     </p>
+                  ) : null}
+                  {existingImageUploads.length > 0 ? (
+                    <div className="mt-3 rounded-2xl border border-[var(--color-blush)] bg-white/80 px-3 py-2">
+                      <p className="text-xs font-bold text-[var(--color-berry)]">
+                        {existingImageUploads.length} uploaded reference photo
+                        {existingImageUploads.length === 1 ? "" : "s"} saved.
+                      </p>
+                      <div className="mt-2 space-y-2">
+                        {existingImageUploads.map((image) => (
+                          <div
+                            key={image.path}
+                            className="flex items-center justify-between gap-3 rounded-xl bg-[#fff8fb] px-3 py-2 text-xs text-[var(--color-cocoa)]"
+                          >
+                            <span className="min-w-0 flex-1 truncate">
+                              {image.originalName}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeExistingReferencePhoto(image.path)}
+                              className="shrink-0 rounded-full border border-[var(--color-berry)] px-3 py-1 font-bold uppercase tracking-[0.04em] text-[var(--color-berry)] transition hover:bg-[var(--color-berry)] hover:text-white"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   ) : null}
                   {files.length > 0 ? (
                     <p className="mt-1 text-xs font-bold text-[var(--color-berry)]">
