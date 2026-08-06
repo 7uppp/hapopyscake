@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { env } from "@/lib/env";
-import { slugify } from "@/lib/utils";
 import { createSupabaseAdminClient } from "@/lib/supabase";
 
 export const runtime = "nodejs";
@@ -47,6 +46,18 @@ function hasAllowedImageSignature(buffer: ArrayBuffer, mimeType: string) {
   return false;
 }
 
+function getFileExtension(mimeType: string) {
+  if (mimeType === "image/png") {
+    return "png";
+  }
+
+  if (mimeType === "image/webp") {
+    return "webp";
+  }
+
+  return "jpg";
+}
+
 export async function POST(request: Request) {
   if (!env.hasSupabase) {
     return NextResponse.json(
@@ -88,7 +99,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid image file." }, { status: 400 });
   }
 
-  const path = `${draftId}/${Date.now()}-${slugify(file.name)}`;
+  const path = `${draftId}/${Date.now()}-${crypto.randomUUID()}.${getFileExtension(file.type)}`;
 
   const { error } = await supabase.storage
     .from(env.orderBucket)
@@ -98,7 +109,11 @@ export async function POST(request: Request) {
     });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Order reference upload failed", error);
+    return NextResponse.json(
+      { error: "We couldn't upload this photo. Please try another JPG, PNG, or WEBP image under 2MB." },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({
