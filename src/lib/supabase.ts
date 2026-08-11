@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 
 import { env, assertServerEnv } from "@/lib/env";
 
+const orderImageSignedUrlExpiresInSeconds = 60 * 60 * 24 * 7;
+
 export function createSupabaseAdminClient() {
   assertServerEnv(env.hasSupabase, "Supabase is not configured.");
 
@@ -29,7 +31,7 @@ export async function createOrderImageSignedUrl(path: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase.storage
     .from(env.orderBucket)
-    .createSignedUrl(path, 60 * 30);
+    .createSignedUrl(path, orderImageSignedUrlExpiresInSeconds);
 
   if (error) {
     throw error;
