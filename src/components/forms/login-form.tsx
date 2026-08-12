@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 export function LoginForm() {
@@ -58,9 +59,17 @@ export function LoginForm() {
           />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-bold text-[var(--color-cocoa)]">
-            Password
-          </label>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <label className="block text-sm font-bold text-[var(--color-cocoa)]">
+              Password
+            </label>
+            <Link
+              href="/forgot-password"
+              className="text-xs font-bold text-[var(--color-berry)] transition hover:text-[var(--color-ink)]"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <input
             type="password"
             name="password"

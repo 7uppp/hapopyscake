@@ -141,6 +141,34 @@ export async function sendContactInquiryEmail(options: {
   });
 }
 
+export async function sendPasswordResetEmail(options: {
+  email: string;
+  resetUrl: string;
+}) {
+  const resend = getResend();
+  const resetUrl = escapeHtml(options.resetUrl);
+
+  return resend.emails.send({
+    from: process.env.MARKETING_FROM_EMAIL!,
+    to: options.email,
+    subject: "Reset your Happy's Cake password",
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.6;color:#2e241d;">
+        <h1>Reset your password</h1>
+        <p>We received a request to reset the password for your Happy's Cake account.</p>
+        <p>
+          <a href="${resetUrl}" style="display:inline-block;border-radius:999px;background:#e96fa5;color:#ffffff;padding:12px 22px;text-decoration:none;font-weight:700;">
+            Reset password
+          </a>
+        </p>
+        <p>This link expires in 1 hour. If you did not request this, you can safely ignore this email.</p>
+        <p>If the button does not work, copy and paste this link into your browser:</p>
+        <p style="word-break:break-all;"><a href="${resetUrl}">${resetUrl}</a></p>
+      </div>
+    `,
+  });
+}
+
 export async function sendMarketingEmail(options: {
   to: string;
   subject: string;
