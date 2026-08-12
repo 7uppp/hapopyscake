@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 
 const passwordResetIdentifierPrefix = "password-reset:";
 const passwordResetTokenTtlMs = 60 * 60 * 1000;
+const passwordResetEmailCooldownMs = 10 * 60 * 1000;
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
@@ -78,6 +79,22 @@ export async function requestPasswordReset(
   const tokenHash = hashPasswordResetToken(rawToken);
   const identifier = getPasswordResetIdentifier(email);
   const expires = new Date(Date.now() + passwordResetTokenTtlMs);
+  const existingToken = await prisma.verificationToken.findFirst({
+    where: {
+      identifier,
+      expires: {
+        gt: new Date(Date.now() + passwordResetTokenTtlMs - passwordResetEmailCooldownMs),
+      },
+    },
+    select: { token: true },
+  });
+
+  if (existingToken) {
+    return {
+      ok: true,
+      message: getGenericForgotPasswordMessage(),
+    };
+  }
 
   await prisma.verificationToken.deleteMany({
     where: { identifier },
